@@ -8,27 +8,113 @@ module.exports = {
   USER: "919074616114",
   HUSBAND: "918921285711",
 
-  SAFE_FOODS: ["Apple","Banana","Rice","Chapati","Milk","Curd"],
-  AVOID_FOODS: ["Papaya","Pineapple","Raw eggs","Alcohol"],
-  LIMIT_FOODS: ["Tea","Coffee","Fried foods"],
+  // Lists used for commands (safe foods / avoid foods / limit foods)
+  SAFE_FOODS: [
+    "Apple",
+    "Banana",
+    "Orange",
+    "Grapes",
+    "Pomegranate",
+    "Avocado",
+    "Mango",
+    "Pear",
+    "Watermelon",
+    "Carrot",
+    "Beetroot",
+    "Spinach",
+    "Broccoli",
+    "Pumpkin",
+    "Sweet potato",
+    "Rice",
+    "Chapati",
+    "Oats",
+    "Milk",
+    "Curd",
+    "Paneer",
+    "Egg (well cooked)",
+    "Chicken (well cooked)",
+    "Fish (low mercury)"
+  ],
+
+  AVOID_FOODS: [
+    "Papaya",
+    "Pineapple",
+    "Raw egg",
+    "Raw fish",
+    "Raw meat",
+    "Alcohol",
+    "Smoking",
+    "Energy drink",
+    "Unpasteurized milk",
+    "Soft cheese",
+    "Street food"
+  ],
+
+  LIMIT_FOODS: [
+    "Coffee",
+    "Tea",
+    "Chocolate",
+    "Fried food",
+    "Junk food",
+    "Salt",
+    "Sugar"
+  ],
 
   MEAL_TIMES: ["09:00","12:00","15:00","18:00","19:30","21:30"],
   WATER_TIMES: ["07:30","09:30","11:30","13:30","15:30","17:30","19:30","21:00"],
 
+  // Database used for single-word food replies
   FOOD_DB: {
-    apple: "✅ Safe",
-    banana: "✅ Safe",
-    milk: "✅ Safe (boiled)",
-    papaya: "❌ Avoid",
-    pineapple: "❌ Avoid",
-    chicken: "✅ Safe if well cooked",
-    fish: "⚠️ Avoid raw fish",
-    egg: "⚠️ Only well cooked",
-    tea: "⚠️ Limit",
-    coffee: "⚠️ Limit",
-    fried: "⚠️ Limit"
+    // 🟢 SAFE FOODS
+    apple: "✅ Safe – rich in fiber and vitamins",
+    banana: "✅ Safe – good for digestion and energy",
+    orange: "✅ Safe – vitamin C rich",
+    grapes: "✅ Safe – antioxidants (wash well)",
+    pomegranate: "✅ Safe – improves hemoglobin",
+    avocado: "✅ Safe – healthy fats",
+    mango: "✅ Safe – vitamin A (in moderation)",
+    pear: "✅ Safe – fiber rich",
+    watermelon: "✅ Safe – hydration",
+    carrot: "✅ Safe – beta carotene",
+    beetroot: "✅ Safe – supports blood levels",
+    spinach: "✅ Safe – iron & folate",
+    broccoli: "✅ Safe – calcium & fiber",
+    pumpkin: "✅ Safe – vitamins",
+    sweetpotato: "✅ Safe – energy & fiber",
+    rice: "✅ Safe – easy to digest",
+    chapati: "✅ Safe – whole grain energy",
+    oats: "✅ Safe – fiber rich",
+    milk: "✅ Safe – calcium source (boiled)",
+    curd: "✅ Safe – probiotics",
+    paneer: "✅ Safe – protein source",
+    egg: "✅ Safe – protein (well cooked)",
+    chicken: "✅ Safe – protein (well cooked)",
+    fish: "✅ Safe – omega-3 (low mercury, well cooked)",
+
+    // 🔴 AVOID FOODS
+    papaya: "❌ Avoid – may trigger uterine contractions",
+    pineapple: "❌ Avoid – contains bromelain",
+    rawegg: "❌ Avoid – salmonella risk",
+    rawfish: "❌ Avoid – infection risk",
+    rawmeat: "❌ Avoid – harmful bacteria",
+    alcohol: "❌ Avoid – harms baby development",
+    smoking: "❌ Avoid – serious pregnancy risk",
+    energydrink: "❌ Avoid – high caffeine",
+    unpasteurizedmilk: "❌ Avoid – listeria risk",
+    softcheese: "❌ Avoid – bacterial risk",
+    streetfood: "❌ Avoid – hygiene issues",
+
+    // 🟡 LIMIT FOODS
+    coffee: "⚠️ Limit – caffeine intake",
+    tea: "⚠️ Limit – caffeine",
+    chocolate: "⚠️ Limit – sugar & caffeine",
+    friedfood: "⚠️ Limit – digestion issues",
+    junkfood: "⚠️ Limit – low nutrition",
+    salt: "⚠️ Limit – swelling risk",
+    sugar: "⚠️ Limit – gestational diabetes risk"
   },
 
+  // Images for list commands
   SAFE_FOOD_IMAGE:
     "https://raw.githubusercontent.com/ivanstanley143/pregnancy-wa-bot/main/images/file_000000003b5c7207b2003e19bea0cbed.png",
 
