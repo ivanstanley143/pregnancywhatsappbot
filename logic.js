@@ -5,9 +5,50 @@ function isMalayalam(text) {
   return /[\u0D00-\u0D7F]/.test(text);
 }
 
+// 📅 pregnancy week calculator
+function getCurrentPregnancyWeek(lmp) {
+  const lmpDate = new Date(lmp);
+  const today = new Date();
+  const diffDays = Math.floor(
+    (today - lmpDate) / (1000 * 60 * 60 * 24)
+  );
+  return Math.floor(diffDays / 7) + 1;
+}
+
 module.exports = async (text) => {
   const msg = text.toLowerCase().trim();
   const malayalam = isMalayalam(text);
+
+  // 📅 WEEK / BABY SIZE COMMAND
+  if (
+    msg === "week" ||
+    msg === "weeks" ||
+    msg.includes("current week") ||
+    msg.includes("ആഴ്ച")
+  ) {
+    const week = getCurrentPregnancyWeek(data.LMP);
+    const baby = data.BABY_IMAGES[week];
+
+    if (!baby) {
+      return `🤰 Pregnancy Week ${week}\n\nDetails will be available soon.`;
+    }
+
+    return {
+      type: "image",
+      image: baby.image,
+      caption:
+        `Hi ${data.NAME},\n` +
+        `Assalamu Alaikkum 🌸\n\n` +
+
+        `🤰 Week ${week}\n` +
+        `Baby size: ${baby.size}\n\n` +
+
+        `🤰 ${week} ആഴ്ച\n` +
+        `കുഞ്ഞിന്റെ വലുപ്പം: ${baby.size}\n\n` +
+
+        `${data.DISCLAIMER}`
+    };
+  }
 
   // 🟢 SAFE FOODS LIST (Bilingual title, English list)
   if (msg.includes("safe foods") || msg.includes("സേഫ്")) {
