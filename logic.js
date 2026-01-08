@@ -1,15 +1,20 @@
 const data = require("./data");
-const utils = require("./utils");
+
+// simple language detection
+function isMalayalam(text) {
+  return /[\u0D00-\u0D7F]/.test(text);
+}
 
 module.exports = async (text) => {
-  const msg = text.toLowerCase();
+  const msg = text.toLowerCase().trim();
+  const malayalam = isMalayalam(text);
 
+  // 🍎 FOOD CHECK
   for (const food in data.FOOD_DB) {
     if (msg.includes(food)) {
-      return utils.format(
-        `${food.toUpperCase()} : ${data.FOOD_DB[food]}`,
-        `${food} : ${data.FOOD_DB[food]}`
-      );
+      return malayalam
+        ? `🍎 ${food} : ${data.FOOD_DB[food]} (ഗർഭകാലത്ത്)`
+        : `${food.toUpperCase()} : ${data.FOOD_DB[food]}`;
     }
   }
 
@@ -17,10 +22,9 @@ module.exports = async (text) => {
     return {
       type: "image",
       image: data.SAFE_FOOD_IMAGE,
-      caption: utils.format(
-        "🥗 Pregnancy safe foods",
-        "🥗 ഗർഭകാലത്ത് സുരക്ഷിതമായ ഭക്ഷണങ്ങൾ"
-      )
+      caption: malayalam
+        ? "🥗 ഗർഭകാലത്ത് സുരക്ഷിതമായ ഭക്ഷണങ്ങൾ"
+        : "🥗 Pregnancy safe foods"
     };
   }
 
@@ -28,10 +32,9 @@ module.exports = async (text) => {
     return {
       type: "image",
       image: data.AVOID_FOOD_IMAGE,
-      caption: utils.format(
-        "🚫 Foods to avoid during pregnancy",
-        "🚫 ഗർഭകാലത്ത് ഒഴിവാക്കേണ്ട ഭക്ഷണങ്ങൾ"
-      )
+      caption: malayalam
+        ? "🚫 ഗർഭകാലത്ത് ഒഴിവാക്കേണ്ട ഭക്ഷണങ്ങൾ"
+        : "🚫 Foods to avoid during pregnancy"
     };
   }
 
@@ -39,10 +42,9 @@ module.exports = async (text) => {
     return {
       type: "image",
       image: data.LIMIT_FOOD_IMAGE,
-      caption: utils.format(
-        "⚠️ Foods to limit during pregnancy",
-        "⚠️ ഗർഭകാലത്ത് കുറയ്ക്കേണ്ട ഭക്ഷണങ്ങൾ"
-      )
+      caption: malayalam
+        ? "⚠️ ഗർഭകാലത്ത് കുറയ്ക്കേണ്ട ഭക്ഷണങ്ങൾ"
+        : "⚠️ Foods to limit during pregnancy"
     };
   }
 
