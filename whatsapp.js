@@ -12,7 +12,7 @@ const qrcode = require("qrcode-terminal");
 const logic = require("./logic");
 
 // 🔴 FORCE FRESH LOGIN (new folder = new QR)
-const AUTH_DIR = path.join(__dirname, "auth_info_baileys_v3");
+const AUTH_DIR = path.join(__dirname, "auth_info_baileys");
 
 let sock = null;
 
@@ -108,3 +108,4 @@ async function connectToWhatsApp() {
 module.exports = {
   connectToWhatsApp
 };
+
