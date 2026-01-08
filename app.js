@@ -36,7 +36,6 @@ connectToWhatsApp()
     sock.ev.on("messages.upsert", async ({ messages, type }) => {
       console.log("🔥 messages.upsert TRIGGERED");
 
-      if (type !== "notify") return;
 
       for (const msg of messages) {
         try {
