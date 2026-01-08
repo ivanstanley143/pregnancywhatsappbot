@@ -155,7 +155,7 @@ module.exports = {
 
   WEEKLY_DUA: {
     12: "🤲 Rabbi habli min ladunka dhurriyyatan tayyibah / رَبِّ هَبْ لِي مِنْ لَدُنْكَ ذُرِّيَّةً طَيِّبَةً إِنَّكَ سَمِيعُ الدُّعَاءِ",
-    13: "🤲 Allahumma yassir wala tu’assir wa tammim bil-khayr / رَبِّ يَسِّرْ وَلاَ تُعَسِّرْ وَتَمِّمْ بِالْخَيْرِ",
+    13: "🤲 Rabbi yassir wala tu’assir wa tammim bil-khayr / رَبِّ يَسِّرْ وَلاَ تُعَسِّرْ وَتَمِّمْ بِالْخَيْرِ",
     14: "🤲 Rabbi zidni sihhat wa quwwah / رَبِّ زِدْنِي صِحَّةً وَقُوَّةً"
   },
 
