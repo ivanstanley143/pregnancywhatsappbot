@@ -2,47 +2,56 @@ require("dotenv").config();
 const express = require("express");
 const {
   connectToWhatsApp,
+  getSocket,
   sendTextMessage,
-  sendImageMessage,
-  getSocket
+  sendImageMessage
 } = require("./whatsapp");
+
 const logic = require("./logic");
 const scheduler = require("./scheduler");
 
 const app = express();
 app.use(express.json());
 
-// Health check endpoint for Koyeb
+// 🌐 Health check for Koyeb
 app.get("/", (req, res) => {
-  res.json({ status: "ok", service: "pregnancywhatsappbot" });
+  res.json({ status: "ok", bot: "pregnancywhatsappbot" });
 });
 
-// Connect to WhatsApp
+// 🚀 START BOT
 connectToWhatsApp()
   .then(() => {
-    console.log("🤖 Starting pregnancy WhatsApp bot...");
+    console.log("🤖 Pregnancy WhatsApp Bot starting...");
 
     const sock = getSocket();
 
-    // ✅ HANDLE INCOMING MESSAGES (FIXED)
+    if (!sock) {
+      console.error("❌ SOCKET IS NULL IN app.js");
+      return;
+    }
+
+    console.log("✅ SOCKET RECEIVED IN app.js");
+
+    // 🔥 INCOMING MESSAGE HANDLER
     sock.ev.on("messages.upsert", async ({ messages, type }) => {
+      console.log("🔥 messages.upsert TRIGGERED");
+
       if (type !== "notify") return;
 
       for (const msg of messages) {
         try {
-          if (!msg.message) continue;
+          if (!msg.message || msg.key.fromMe) continue;
 
-          // Skip status & group messages
           const from = msg.key.remoteJid;
+
+          // Skip groups & status
           if (
             from === "status@broadcast" ||
-            from.includes("@g.us") ||
-            msg.key.fromMe
+            from.includes("@g.us")
           ) {
             continue;
           }
 
-          // Extract text safely
           const rawText =
             msg.message.conversation ||
             msg.message.extendedTextMessage?.text ||
@@ -50,43 +59,39 @@ connectToWhatsApp()
 
           if (!rawText) continue;
 
-          // ✅ NORMALIZE TEXT (THIS WAS MISSING)
           const text = rawText.toLowerCase().trim();
 
           console.log(`📨 Message from ${from}:`, rawText, "→", text);
 
-          // Pass normalized text to logic
           const result = await logic(text);
-
           if (!result) continue;
 
-          const phoneNumber = from.split("@")[0];
+          const phone = from.split("@")[0];
 
-          // Send response
           if (typeof result === "string") {
-            await sendTextMessage(phoneNumber, result);
+            await sendTextMessage(phone, result);
           } else if (result.type === "image") {
             await sendImageMessage(
-              phoneNumber,
+              phone,
               result.image,
               result.caption || ""
             );
           }
-        } catch (error) {
-          console.error("❌ Error processing message:", error.message);
+        } catch (err) {
+          console.error("❌ Message error:", err.message);
         }
       }
     });
 
-    // Start scheduler after WhatsApp connection
+    // ⏰ Start scheduler
     scheduler();
   })
-  .catch((error) => {
-    console.error("❌ Failed to start bot:", error);
+  .catch((err) => {
+    console.error("❌ Bot failed to start:", err);
     process.exit(1);
   });
 
-// Start HTTP server for Koyeb
+// 🌐 HTTP server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🌐 HTTP server running on port ${PORT}`);
