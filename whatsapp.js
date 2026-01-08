@@ -13,7 +13,7 @@ const logic = require("./logic");
 let sock = null;
 let isConnected = false;
 
-const AUTH_DIR = path.join(__dirname, "auth_info_baileys");
+const AUTH_DIR = path.join(__dirname, "auth_info_baileys_V2");
 
 // 🔹 format phone → jid
 const formatJID = (phone) => `${phone.replace(/\D/g, "")}@s.whatsapp.net`;
@@ -109,3 +109,4 @@ async function connectToWhatsApp() {
 module.exports = {
   connectToWhatsApp
 };
+
