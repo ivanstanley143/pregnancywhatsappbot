@@ -1,18 +1,16 @@
 const {
   default: makeWASocket,
-  useSingleFileAuthState,
+  useMultiFileAuthState,
   fetchLatestBaileysVersion,
   DisconnectReason
 } = require("@whiskeysockets/baileys");
 
 const path = require("path");
+const fs = require("fs");
 
-// 🔴 SINGLE AUTH FILE
-const { state, saveState } = useSingleFileAuthState(
-  path.join(__dirname, "auth_info.json")
-);
+// 🔴 AUTH FOLDER (Baileys requirement now)
+const AUTH_DIR = path.join(__dirname, "baileys_auth");
 
-// 🔴 GLOBAL SOCKET (IMPORTANT)
 let sock = null;
 
 async function connectToWhatsApp() {
@@ -21,6 +19,12 @@ async function connectToWhatsApp() {
     return sock;
   }
 
+  // Ensure auth folder exists
+  if (!fs.existsSync(AUTH_DIR)) {
+    fs.mkdirSync(AUTH_DIR);
+  }
+
+  const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
   const { version } = await fetchLatestBaileysVersion();
 
   sock = makeWASocket({
@@ -30,7 +34,7 @@ async function connectToWhatsApp() {
     browser: ["PregnancyBot", "Chrome", "1.0"]
   });
 
-  sock.ev.on("creds.update", saveState);
+  sock.ev.on("creds.update", saveCreds);
 
   sock.ev.on("connection.update", (update) => {
     const { connection, lastDisconnect } = update;
@@ -60,14 +64,11 @@ function getSocket() {
   return sock;
 }
 
-// 🔹 SEND TEXT
 async function sendTextMessage(phone, text) {
   if (!sock) throw new Error("Socket not ready");
-
   await sock.sendMessage(`${phone}@s.whatsapp.net`, { text });
 }
 
-// 🔹 SEND IMAGE
 async function sendImageMessage(phone, imageUrl, caption = "") {
   if (!sock) throw new Error("Socket not ready");
 
