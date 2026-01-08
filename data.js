@@ -160,6 +160,6 @@ module.exports = {
   },
 
   APPOINTMENTS: [
-    { date: "2026-01-12", time: "10:00", note: "Doctor appointment" }
+    { date: "2026-01-10", time: "10:00", note: "Doctor appointment" }
   ]
 };
