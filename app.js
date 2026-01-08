@@ -9,7 +9,7 @@ app.use(express.json());
 
 // Health check endpoint for Koyeb
 app.get("/", (req, res) => {
-  res.json({ status: "ok", service: "pregnancy-whatsapp-bot" });
+  res.json({ status: "ok", service: "pregnancywhatsappbot" });
 });
 
 // Connect to WhatsApp
