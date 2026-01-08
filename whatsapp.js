@@ -7,20 +7,18 @@ const {
 
 const pino = require("pino");
 const path = require("path");
+const qrcode = require("qrcode-terminal");
 
 const logic = require("./logic");
 
+// 🔴 FORCE FRESH LOGIN (new folder = new QR)
+const AUTH_DIR = path.join(__dirname, "auth_info_baileys_v3");
+
 let sock = null;
-let isConnected = false;
-
-const AUTH_DIR = path.join(__dirname, "auth_info_baileys_V2");
-
-// 🔹 format phone → jid
-const formatJID = (phone) => `${phone.replace(/\D/g, "")}@s.whatsapp.net`;
 
 async function connectToWhatsApp() {
   if (sock) {
-    console.log("♻️ Reusing existing socket");
+    console.log("♻️ Reusing existing WhatsApp socket");
     return sock;
   }
 
@@ -31,36 +29,40 @@ async function connectToWhatsApp() {
     version,
     auth: state,
     logger: pino({ level: "silent" }),
-    printQRInTerminal: true,
     browser: ["PregnancyBot", "Chrome", "1.0"]
   });
 
+  // Save auth
   sock.ev.on("creds.update", saveCreds);
 
+  // 🔥 CONNECTION + QR HANDLER (EXPLICIT)
   sock.ev.on("connection.update", (update) => {
-    const { connection, lastDisconnect } = update;
+    const { connection, lastDisconnect, qr } = update;
+
+    if (qr) {
+      console.log("📱 Scan this QR code with WhatsApp:");
+      qrcode.generate(qr, { small: true });
+    }
 
     if (connection === "open") {
       console.log("✅ WhatsApp socket OPEN");
-      isConnected = true;
     }
 
     if (connection === "close") {
       const code = lastDisconnect?.error?.output?.statusCode;
-      console.log("⚠️ Connection closed:", code);
+      console.log("❌ WhatsApp connection closed:", code);
 
-      isConnected = false;
       sock = null;
 
       if (code !== DisconnectReason.loggedOut) {
         connectToWhatsApp();
       } else {
-        console.log("❌ Logged out. Scan QR again.");
+        console.log("⚠️ Logged out. QR required again.");
       }
     }
   });
 
-  // 🔥 INCOMING MESSAGE HANDLER (FINAL FIX)
+  // 🔥 INCOMING MESSAGE HANDLER (FINAL & CORRECT)
   sock.ev.on("messages.upsert", async ({ messages }) => {
     console.log("🔥 messages.upsert FIRED");
 
@@ -70,7 +72,7 @@ async function connectToWhatsApp() {
 
         const from = msg.key.remoteJid;
 
-        // ignore status & groups
+        // Skip groups & status
         if (from === "status@broadcast" || from.includes("@g.us")) continue;
 
         const rawText =
@@ -81,18 +83,15 @@ async function connectToWhatsApp() {
         if (!rawText) continue;
 
         const text = rawText.toLowerCase().trim();
-
         console.log("📨 FROM:", from, "TEXT:", text);
 
         const result = await logic(text);
-        if (!result) return;
-
-        const phone = from.split("@")[0];
+        if (!result) continue;
 
         if (typeof result === "string") {
-          await sock.sendMessage(formatJID(phone), { text: result });
+          await sock.sendMessage(from, { text: result });
         } else if (result.type === "image") {
-          await sock.sendMessage(formatJID(phone), {
+          await sock.sendMessage(from, {
             image: { url: result.image },
             caption: result.caption || ""
           });
@@ -109,4 +108,3 @@ async function connectToWhatsApp() {
 module.exports = {
   connectToWhatsApp
 };
-
