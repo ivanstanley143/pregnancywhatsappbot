@@ -3,121 +3,109 @@ const {
   useMultiFileAuthState,
   DisconnectReason,
   fetchLatestBaileysVersion
-} = require('@whiskeysockets/baileys');
+} = require("@whiskeysockets/baileys");
 
-const pino = require('pino');
-const axios = require('axios');
+const pino = require("pino");
+const path = require("path");
+
+const logic = require("./logic");
 
 let sock = null;
 let isConnected = false;
 
-// Helper to format phone number to JID
-const formatJID = (phoneNumber) => {
-  const cleaned = phoneNumber.replace(/\D/g, '');
-  return `${cleaned}@s.whatsapp.net`;
-};
+const AUTH_DIR = path.join(__dirname, "auth_info_baileys");
 
-// Helper to download image from URL
-const downloadImage = async (url) => {
-  try {
-    const response = await axios.get(url, { responseType: 'arraybuffer' });
-    return Buffer.from(response.data);
-  } catch (error) {
-    console.error('Error downloading image:', error.message);
-    return null;
+// 🔹 format phone → jid
+const formatJID = (phone) => `${phone.replace(/\D/g, "")}@s.whatsapp.net`;
+
+async function connectToWhatsApp() {
+  if (sock) {
+    console.log("♻️ Reusing existing socket");
+    return sock;
   }
-};
 
-const connectToWhatsApp = async () => {
-  try {
-    // ✅ IMPORTANT: reuse socket if exists
-    if (sock) {
-      console.log('♻️ Reusing existing WhatsApp socket');
-      return sock;
+  const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
+  const { version } = await fetchLatestBaileysVersion();
+
+  sock = makeWASocket({
+    version,
+    auth: state,
+    logger: pino({ level: "silent" }),
+    printQRInTerminal: true,
+    browser: ["PregnancyBot", "Chrome", "1.0"]
+  });
+
+  sock.ev.on("creds.update", saveCreds);
+
+  sock.ev.on("connection.update", (update) => {
+    const { connection, lastDisconnect } = update;
+
+    if (connection === "open") {
+      console.log("✅ WhatsApp socket OPEN");
+      isConnected = true;
     }
 
-    const { version } = await fetchLatestBaileysVersion();
-    const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
+    if (connection === "close") {
+      const code = lastDisconnect?.error?.output?.statusCode;
+      console.log("⚠️ Connection closed:", code);
 
-    sock = makeWASocket({
-      version,
-      logger: pino({ level: 'silent' }),
-      printQRInTerminal: true,
-      auth: state,
-      browser: ['Pregnancy Bot', 'Chrome', '1.0.0'],
-      getMessage: async () => ({ conversation: 'Message not found' })
-    });
+      isConnected = false;
+      sock = null;
 
-    sock.ev.on('creds.update', saveCreds);
-
-    sock.ev.on('connection.update', (update) => {
-      const { connection, lastDisconnect, qr } = update;
-
-      if (qr) {
-        console.log('\n📱 Scan this QR code with WhatsApp:');
-        require('qrcode-terminal').generate(qr, { small: true });
+      if (code !== DisconnectReason.loggedOut) {
+        connectToWhatsApp();
+      } else {
+        console.log("❌ Logged out. Scan QR again.");
       }
-
-      if (connection === 'open') {
-        console.log('✅ Connected to WhatsApp!');
-        isConnected = true;
-      }
-
-      if (connection === 'close') {
-        const code = lastDisconnect?.error?.output?.statusCode;
-        console.log('⚠️ Connection closed:', code);
-
-        isConnected = false;
-        sock = null; // ✅ CRITICAL FIX
-
-        if (code !== DisconnectReason.loggedOut) {
-          connectToWhatsApp();
-        } else {
-          console.log('❌ Logged out. Scan QR again.');
-        }
-      }
-    });
-
-    return sock;
-  } catch (error) {
-    console.error('Error connecting to WhatsApp:', error);
-    throw error;
-  }
-};
-
-const sendTextMessage = async (phoneNumber, text) => {
-  if (!sock || !isConnected) {
-    throw new Error('WhatsApp not connected');
-  }
-  const jid = formatJID(phoneNumber);
-  await sock.sendMessage(jid, { text });
-};
-
-const sendImageMessage = async (phoneNumber, imageUrl, caption) => {
-  if (!sock || !isConnected) {
-    throw new Error('WhatsApp not connected');
-  }
-
-  const imageBuffer = await downloadImage(imageUrl);
-  if (!imageBuffer) {
-    throw new Error('Failed to download image');
-  }
-
-  const jid = formatJID(phoneNumber);
-  await sock.sendMessage(jid, {
-    image: imageBuffer,
-    caption: caption || ''
+    }
   });
-};
 
-const getSocket = () => sock;
-const getConnectionStatus = () => isConnected;
+  // 🔥 INCOMING MESSAGE HANDLER (FINAL FIX)
+  sock.ev.on("messages.upsert", async ({ messages }) => {
+    console.log("🔥 messages.upsert FIRED");
+
+    for (const msg of messages) {
+      try {
+        if (!msg.message || msg.key.fromMe) continue;
+
+        const from = msg.key.remoteJid;
+
+        // ignore status & groups
+        if (from === "status@broadcast" || from.includes("@g.us")) continue;
+
+        const rawText =
+          msg.message.conversation ||
+          msg.message.extendedTextMessage?.text ||
+          "";
+
+        if (!rawText) continue;
+
+        const text = rawText.toLowerCase().trim();
+
+        console.log("📨 FROM:", from, "TEXT:", text);
+
+        const result = await logic(text);
+        if (!result) return;
+
+        const phone = from.split("@")[0];
+
+        if (typeof result === "string") {
+          await sock.sendMessage(formatJID(phone), { text: result });
+        } else if (result.type === "image") {
+          await sock.sendMessage(formatJID(phone), {
+            image: { url: result.image },
+            caption: result.caption || ""
+          });
+        }
+      } catch (err) {
+        console.error("❌ Incoming message error:", err.message);
+      }
+    }
+  });
+
+  return sock;
+}
 
 module.exports = {
-  connectToWhatsApp,
-  sendTextMessage,
-  sendImageMessage,
-  getSocket,
-  getConnectionStatus,
-  formatJID
+  connectToWhatsApp
 };
