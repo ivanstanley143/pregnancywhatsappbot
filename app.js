@@ -1,6 +1,11 @@
 require("dotenv").config();
 const express = require("express");
-const { connectToWhatsApp, sendTextMessage, sendImageMessage, getSocket } = require("./whatsapp");
+const {
+  connectToWhatsApp,
+  sendTextMessage,
+  sendImageMessage,
+  getSocket
+} = require("./whatsapp");
 const logic = require("./logic");
 const scheduler = require("./scheduler");
 
@@ -13,61 +18,76 @@ app.get("/", (req, res) => {
 });
 
 // Connect to WhatsApp
-connectToWhatsApp().then(() => {
-  console.log("🤖 Starting pregnancy WhatsApp bot...");
-  
-  const sock = getSocket();
-  
-  // Handle incoming messages
-  sock.ev.on('messages.upsert', async ({ messages, type }) => {
-    if (type !== 'notify') return;
+connectToWhatsApp()
+  .then(() => {
+    console.log("🤖 Starting pregnancy WhatsApp bot...");
 
-    for (const msg of messages) {
-      try {
-        // Skip if message is from status or group
-        if (msg.key.remoteJid === 'status@broadcast' || msg.key.remoteJid.includes('@g.us')) {
-          continue;
-        }
+    const sock = getSocket();
 
-        // Only process text messages
-        if (msg.message?.conversation || msg.message?.extendedTextMessage?.text) {
-          const text = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
+    // ✅ HANDLE INCOMING MESSAGES (FIXED)
+    sock.ev.on("messages.upsert", async ({ messages, type }) => {
+      if (type !== "notify") return;
+
+      for (const msg of messages) {
+        try {
+          if (!msg.message) continue;
+
+          // Skip status & group messages
           const from = msg.key.remoteJid;
-
-          console.log(`📨 Received message from ${from}: ${text}`);
-
-          const result = await logic(text);
-          
-          if (result) {
-            try {
-              if (typeof result === "string") {
-                // from is already a JID, extract phone number
-                const phoneNumber = from.split('@')[0];
-                await sendTextMessage(phoneNumber, result);
-              } else if (result.type === "image") {
-                const phoneNumber = from.split('@')[0];
-                await sendImageMessage(phoneNumber, result.image, result.caption);
-              }
-            } catch (error) {
-              console.error("Error sending reply:", error.message);
-            }
+          if (
+            from === "status@broadcast" ||
+            from.includes("@g.us") ||
+            msg.key.fromMe
+          ) {
+            continue;
           }
+
+          // Extract text safely
+          const rawText =
+            msg.message.conversation ||
+            msg.message.extendedTextMessage?.text ||
+            "";
+
+          if (!rawText) continue;
+
+          // ✅ NORMALIZE TEXT (THIS WAS MISSING)
+          const text = rawText.toLowerCase().trim();
+
+          console.log(`📨 Message from ${from}:`, rawText, "→", text);
+
+          // Pass normalized text to logic
+          const result = await logic(text);
+
+          if (!result) continue;
+
+          const phoneNumber = from.split("@")[0];
+
+          // Send response
+          if (typeof result === "string") {
+            await sendTextMessage(phoneNumber, result);
+          } else if (result.type === "image") {
+            await sendImageMessage(
+              phoneNumber,
+              result.image,
+              result.caption || ""
+            );
+          }
+        } catch (error) {
+          console.error("❌ Error processing message:", error.message);
         }
-      } catch (error) {
-        console.error("Error processing message:", error.message);
       }
-    }
+    });
+
+    // Start scheduler after WhatsApp connection
+    scheduler();
+  })
+  .catch((error) => {
+    console.error("❌ Failed to start bot:", error);
+    process.exit(1);
   });
 
-  // Start scheduler after connection is established
-  scheduler();
-}).catch((error) => {
-  console.error("Failed to start bot:", error);
-  process.exit(1);
-});
-
-// Start HTTP server for Koyeb health checks
+// Start HTTP server for Koyeb
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🌐 HTTP server listening on port ${PORT}`);
+  console.log(`🌐 HTTP server running on port ${PORT}`);
 });
