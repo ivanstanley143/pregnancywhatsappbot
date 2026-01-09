@@ -1,112 +1,85 @@
+const makeWASocket = require("@whiskeysockets/baileys").default;
 const {
-  default: makeWASocket,
   useMultiFileAuthState,
   DisconnectReason,
-  fetchLatestBaileysVersion
 } = require("@whiskeysockets/baileys");
 
-const pino = require("pino");
-const path = require("path");
-const qrcode = require("qrcode-terminal");
-
-const logic = require("./logic");
-
-// 🔴 FORCE FRESH LOGIN (new folder = new QR)
-const AUTH_DIR = path.join(__dirname, "auth_info_baileys_V3");
-
 let sock = null;
+let isConnected = false;
 
 async function connectToWhatsApp() {
-  if (sock) {
-    console.log("♻️ Reusing existing WhatsApp socket");
-    return sock;
-  }
-
-  const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
-  const { version } = await fetchLatestBaileysVersion();
+  const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
 
   sock = makeWASocket({
-    version,
     auth: state,
-    logger: pino({ level: "silent" }),
-    browser: ["PregnancyBot", "Chrome", "1.0"]
+    printQRInTerminal: false, // deprecated, we handle QR manually
   });
 
-  // Save auth
-  sock.ev.on("creds.update", saveCreds);
-
-  // 🔥 CONNECTION + QR HANDLER (EXPLICIT)
   sock.ev.on("connection.update", (update) => {
     const { connection, lastDisconnect, qr } = update;
 
+    // 🔑 Show QR in terminal (TEXT)
     if (qr) {
-      console.log("📱 Scan this QR code with WhatsApp:");
-      qrcode.generate(qr, { small: true });
+      console.log("📱 Scan this QR code from WhatsApp:");
+      console.log(qr);
     }
 
     if (connection === "open") {
+      isConnected = true;
       console.log("✅ WhatsApp socket OPEN");
     }
 
     if (connection === "close") {
-      const code = lastDisconnect?.error?.output?.statusCode;
-      console.log("❌ WhatsApp connection closed:", code);
+      isConnected = false;
 
-      sock = null;
+      const statusCode =
+        lastDisconnect?.error?.output?.statusCode;
 
-      if (code !== DisconnectReason.loggedOut) {
+      console.log("❌ WhatsApp connection closed:", statusCode);
+
+      if (statusCode !== DisconnectReason.loggedOut) {
+        console.log("🔄 Reconnecting to WhatsApp...");
         connectToWhatsApp();
       } else {
-        console.log("⚠️ Logged out. QR required again.");
+        console.log("⚠️ Logged out from WhatsApp. Delete auth folder and re-scan QR.");
       }
     }
   });
 
-  // 🔥 INCOMING MESSAGE HANDLER (FINAL & CORRECT)
-  sock.ev.on("messages.upsert", async ({ messages }) => {
-    console.log("🔥 messages.upsert FIRED");
+  sock.ev.on("creds.update", saveCreds);
+}
 
-    for (const msg of messages) {
-      try {
-        if (!msg.message || msg.key.fromMe) continue;
+// 📤 Send text message
+async function sendTextMessage(to, text) {
+  if (!sock || !isConnected) {
+    throw new Error("WhatsApp not connected");
+  }
 
-        const from = msg.key.remoteJid;
-
-        // Skip groups & status
-        if (from === "status@broadcast" || from.includes("@g.us")) continue;
-
-        const rawText =
-          msg.message.conversation ||
-          msg.message.extendedTextMessage?.text ||
-          "";
-
-        if (!rawText) continue;
-
-        const text = rawText.toLowerCase().trim();
-        console.log("📨 FROM:", from, "TEXT:", text);
-
-        const result = await logic(text);
-        if (!result) continue;
-
-        if (typeof result === "string") {
-          await sock.sendMessage(from, { text: result });
-        } else if (result.type === "image") {
-          await sock.sendMessage(from, {
-            image: { url: result.image },
-            caption: result.caption || ""
-          });
-        }
-      } catch (err) {
-        console.error("❌ Incoming message error:", err.message);
-      }
-    }
+  await sock.sendMessage(`${to}@s.whatsapp.net`, {
+    text,
   });
+}
 
-  return sock;
+// 🖼️ Send image message
+async function sendImageMessage(to, imageUrl, caption) {
+  if (!sock || !isConnected) {
+    throw new Error("WhatsApp not connected");
+  }
+
+  await sock.sendMessage(`${to}@s.whatsapp.net`, {
+    image: { url: imageUrl },
+    caption,
+  });
+}
+
+// 🔌 Connection status
+function getConnectionStatus() {
+  return isConnected;
 }
 
 module.exports = {
-  connectToWhatsApp
+  connectToWhatsApp,
+  sendTextMessage,
+  sendImageMessage,
+  getConnectionStatus,
 };
-
-
