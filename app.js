@@ -1,3 +1,4 @@
+process.env.TIMEZONE = "Asia/Kolkata";
 require("dotenv").config();
 const express = require("express");
 const { connectToWhatsApp } = require("./whatsapp");
