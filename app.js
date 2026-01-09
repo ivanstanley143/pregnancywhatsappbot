@@ -1,8 +1,8 @@
-const connectDB = require("./db");
 process.env.TIMEZONE = "Asia/Kolkata";
 require("dotenv").config();
 
 const express = require("express");
+const connectDB = require("./db"); // ✅ ADD MongoDB connection
 const { connectToWhatsApp } = require("./whatsapp");
 const { processReminders } = require("./services/reminderEngine");
 
@@ -14,7 +14,10 @@ app.get("/", (req, res) => {
   res.json({ status: "ok", service: "pregnancywhatsappbot" });
 });
 
-// 🚀 Start WhatsApp + Reminder Engine (PERMANENT)
+// 🔌 CONNECT MONGODB FIRST
+connectDB();
+
+// 🚀 Start WhatsApp + Reminder Engine
 connectToWhatsApp()
   .then(() => {
     console.log("🤖 Pregnancy WhatsApp Bot started");
