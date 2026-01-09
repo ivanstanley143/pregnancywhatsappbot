@@ -4,7 +4,6 @@ require("dotenv").config();
 const express = require("express");
 const { connectToWhatsApp } = require("./whatsapp");
 const { processReminders } = require("./services/reminderEngine");
-const seedReminders = require("./services/reminderSeeder");
 
 const app = express();
 app.use(express.json());
@@ -14,18 +13,15 @@ app.get("/", (req, res) => {
   res.json({ status: "ok", service: "pregnancywhatsappbot" });
 });
 
-// 🚀 Start WhatsApp + Reminder System
+// 🚀 Start WhatsApp + Reminder Engine (PERMANENT)
 connectToWhatsApp()
-  .then(async () => {
+  .then(() => {
     console.log("🤖 Pregnancy WhatsApp Bot started");
 
-    // 🌱 TEMP: Seed reminders ONCE
-    await seedReminders();
-
-    // 🔁 Replay missed reminders immediately
+    // 🔁 Replay missed reminders
     processReminders();
 
-    // ⏱️ Check reminders every 1 minute
+    // ⏱️ Run every minute
     setInterval(processReminders, 60 * 1000);
   })
   .catch((err) => {
