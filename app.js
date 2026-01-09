@@ -3,20 +3,26 @@ require("dotenv").config();
 
 const express = require("express");
 const { connectToWhatsApp } = require("./whatsapp");
+const { processReminders } = require("./services/reminderEngine");
 
 const app = express();
 app.use(express.json());
 
-// 🌐 Health check (Koyeb / VPS)
+// 🌐 Health check
 app.get("/", (req, res) => {
   res.json({ status: "ok", service: "pregnancywhatsappbot" });
 });
 
-// 🚀 Start WhatsApp ONLY (scheduler removed)
+// 🚀 Start WhatsApp + Reminder Engine
 connectToWhatsApp()
   .then(() => {
     console.log("🤖 Pregnancy WhatsApp Bot started");
-    // ❌ scheduler is intentionally NOT called
+
+    // Run once at startup (replay missed)
+    processReminders();
+
+    // Run every 1 minute
+    setInterval(processReminders, 60 * 1000);
   })
   .catch((err) => {
     console.error("❌ Failed to start bot:", err);
