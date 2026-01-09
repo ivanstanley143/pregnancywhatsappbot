@@ -1,5 +1,5 @@
-process.env.TIMEZONE = "Asia/Kolkata";
 require("dotenv").config();
+process.env.TIMEZONE = "Asia/Kolkata";
 
 const express = require("express");
 const connectDB = require("./db"); // ✅ ADD MongoDB connection
