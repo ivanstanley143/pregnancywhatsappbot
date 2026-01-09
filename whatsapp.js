@@ -7,7 +7,6 @@ const {
 const pino = require("pino");
 
 async function connectToWhatsApp() {
-  // Load auth state
   const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
   const { version } = await fetchLatestBaileysVersion();
 
@@ -15,41 +14,39 @@ async function connectToWhatsApp() {
     version,
     auth: state,
     logger: pino({ level: "silent" }),
-    printQRInTerminal: false, // ❌ QR disabled (pairing code only)
+    printQRInTerminal: false,
   });
 
-  // 🔐 PAIRING CODE MODE (FORCED)
-  const phoneNumber = process.env.WHATSAPP_NUMBER;
-
-  if (!phoneNumber) {
-    throw new Error("❌ WHATSAPP_NUMBER not set in environment");
-  }
-
-  if (!state.creds.registered) {
-    console.log("🔐 Requesting pairing code...");
-    const code = await sock.requestPairingCode(phoneNumber);
-    console.log("📲 Pairing Code:", code);
-  }
-
-  // Save auth credentials
   sock.ev.on("creds.update", saveCreds);
 
-  // Connection status
-  sock.ev.on("connection.update", (update) => {
+  sock.ev.on("connection.update", async (update) => {
     const { connection, lastDisconnect } = update;
 
     if (connection === "open") {
-      console.log("✅ WhatsApp connected successfully");
+      console.log("✅ WhatsApp connected");
     }
 
     if (connection === "close") {
       const reason = lastDisconnect?.error?.output?.statusCode;
 
       if (reason !== DisconnectReason.loggedOut) {
-        console.log("🔁 Reconnecting WhatsApp...");
+        console.log("🔁 Reconnecting...");
         connectToWhatsApp();
       } else {
-        console.log("❌ Logged out. Delete auth_info_baileys and pair again.");
+        console.log("❌ Logged out. Delete auth folder and re-pair.");
+      }
+    }
+
+    // ✅ REQUEST PAIRING ONLY AFTER SOCKET IS READY
+    if (!state.creds.registered && connection === "connecting") {
+      const phone = process.env.WHATSAPP_NUMBER;
+      if (!phone) throw new Error("WHATSAPP_NUMBER missing");
+
+      try {
+        const code = await sock.requestPairingCode(phone);
+        console.log("📲 PAIRING CODE:", code);
+      } catch (err) {
+        console.error("❌ Pairing failed:", err.message);
       }
     }
   });
