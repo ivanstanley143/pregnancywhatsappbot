@@ -1,3 +1,4 @@
+const seedReminders = require("./services/reminderSeeder");
 process.env.TIMEZONE = "Asia/Kolkata";
 require("dotenv").config();
 
