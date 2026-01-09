@@ -4,9 +4,8 @@ const {
   DisconnectReason,
   fetchLatestBaileysVersion,
 } = require("@whiskeysockets/baileys");
-const pino = require("pino");
 
-let isPairing = false;
+const pino = require("pino");
 
 async function connectToWhatsApp() {
   const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
@@ -15,46 +14,39 @@ async function connectToWhatsApp() {
   const sock = makeWASocket({
     version,
     auth: state,
-    printQRInTerminal: false,
     logger: pino({ level: "silent" }),
+    printQRInTerminal: false,
   });
-
-  // 🔐 PAIRING CODE MODE (ONLY ONCE)
-  if (!state.creds.registered && !isPairing) {
-    isPairing = true;
-
-    const phoneNumber = process.env.WHATSAPP_NUMBER;
-    if (!phoneNumber) {
-      throw new Error("❌ WHATSAPP_NUMBER not set in env");
-    }
-
-    const code = await sock.requestPairingCode(phoneNumber);
-    console.log("📲 Pairing Code:", code);
-    console.log("👉 Open WhatsApp → Linked Devices → Link with phone number");
-  }
 
   sock.ev.on("creds.update", saveCreds);
 
-  sock.ev.on("connection.update", (update) => {
+  sock.ev.on("connection.update", async (update) => {
     const { connection, lastDisconnect } = update;
 
     if (connection === "open") {
-      console.log("✅ WhatsApp connected successfully");
-      isPairing = false;
+      console.log("✅ Socket connected");
+
+      if (!sock.authState.creds.registered) {
+        const phoneNumber = process.env.WHATSAPP_NUMBER;
+
+        if (!phoneNumber) {
+          console.error("❌ WHATSAPP_NUMBER not set");
+          process.exit(1);
+        }
+
+        const code = await sock.requestPairingCode(phoneNumber);
+        console.log("📲 Pairing Code:", code);
+      }
     }
 
     if (connection === "close") {
       const reason = lastDisconnect?.error?.output?.statusCode;
 
-      if (reason === DisconnectReason.loggedOut) {
-        console.log("❌ Logged out. Delete auth_info_baileys and pair again.");
-        return;
-      }
-
-      // ⛔ DO NOT reconnect while pairing
-      if (!isPairing) {
+      if (reason !== DisconnectReason.loggedOut) {
         console.log("🔁 Reconnecting...");
-        setTimeout(connectToWhatsApp, 3000);
+        connectToWhatsApp();
+      } else {
+        console.log("❌ Logged out. Delete auth folder & pair again.");
       }
     }
   });
