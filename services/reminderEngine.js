@@ -3,16 +3,10 @@ const data = require("../data");
 const utils = require("../utils");
 const {
   sendTextMessage,
-  sendImageMessage,
-  getConnectionStatus
+  sendImageMessage
 } = require("../whatsapp");
 
 async function processReminders() {
-  if (!getConnectionStatus()) {
-    console.log("⚠️ WhatsApp not connected. Skipping reminder check.");
-    return;
-  }
-
   const now = new Date();
 
   const reminders = await Reminder.find({
@@ -27,7 +21,7 @@ async function processReminders() {
       r.sentAt = new Date();
       await r.save();
     } catch (err) {
-      console.error("❌ Failed to send reminder:", err);
+      console.error("❌ Reminder send failed:", err.message);
     }
   }
 }
@@ -35,7 +29,6 @@ async function processReminders() {
 async function dispatchReminder(r) {
   switch (r.type) {
 
-    // 💧 Water
     case "water":
       return sendTextMessage(
         r.user,
@@ -45,21 +38,18 @@ async function dispatchReminder(r) {
         )
       );
 
-    // 🍽 Meals
     case "meal":
       return sendTextMessage(
         r.user,
         utils.format(r.data.en, r.data.ml)
       );
 
-    // 🤲 Weekly Dua
     case "dua":
       return sendTextMessage(
         r.user,
         `🤲 Weekly Dua\n\n${data.WEEKLY_DUA[r.data.week]}\n\n${data.DISCLAIMER}`
       );
 
-    // 📅 Appointment
     case "appointment":
       return sendTextMessage(
         r.user,
@@ -69,7 +59,6 @@ async function dispatchReminder(r) {
         )
       );
 
-    // 🤰 Pregnancy Week
     case "week":
       return sendImageMessage(
         r.user,
@@ -80,7 +69,6 @@ async function dispatchReminder(r) {
         )
       );
 
-    // 🌸 Trimester
     case "trimester":
       return sendImageMessage(
         r.user,
