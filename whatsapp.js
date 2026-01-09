@@ -4,10 +4,10 @@ const {
   DisconnectReason,
   fetchLatestBaileysVersion,
 } = require("@whiskeysockets/baileys");
-
 const pino = require("pino");
 
 async function connectToWhatsApp() {
+  // Load auth state
   const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
   const { version } = await fetchLatestBaileysVersion();
 
@@ -15,38 +15,41 @@ async function connectToWhatsApp() {
     version,
     auth: state,
     logger: pino({ level: "silent" }),
-    printQRInTerminal: false,
+    printQRInTerminal: false, // ❌ QR disabled (pairing code only)
   });
 
+  // 🔐 PAIRING CODE MODE (FORCED)
+  const phoneNumber = process.env.WHATSAPP_NUMBER;
+
+  if (!phoneNumber) {
+    throw new Error("❌ WHATSAPP_NUMBER not set in environment");
+  }
+
+  if (!state.creds.registered) {
+    console.log("🔐 Requesting pairing code...");
+    const code = await sock.requestPairingCode(phoneNumber);
+    console.log("📲 Pairing Code:", code);
+  }
+
+  // Save auth credentials
   sock.ev.on("creds.update", saveCreds);
 
-  sock.ev.on("connection.update", async (update) => {
+  // Connection status
+  sock.ev.on("connection.update", (update) => {
     const { connection, lastDisconnect } = update;
 
     if (connection === "open") {
-      console.log("✅ Socket connected");
-
-      if (!sock.authState.creds.registered) {
-        const phoneNumber = process.env.WHATSAPP_NUMBER;
-
-        if (!phoneNumber) {
-          console.error("❌ WHATSAPP_NUMBER not set");
-          process.exit(1);
-        }
-
-        const code = await sock.requestPairingCode(phoneNumber);
-        console.log("📲 Pairing Code:", code);
-      }
+      console.log("✅ WhatsApp connected successfully");
     }
 
     if (connection === "close") {
       const reason = lastDisconnect?.error?.output?.statusCode;
 
       if (reason !== DisconnectReason.loggedOut) {
-        console.log("🔁 Reconnecting...");
+        console.log("🔁 Reconnecting WhatsApp...");
         connectToWhatsApp();
       } else {
-        console.log("❌ Logged out. Delete auth folder & pair again.");
+        console.log("❌ Logged out. Delete auth_info_baileys and pair again.");
       }
     }
   });
