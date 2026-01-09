@@ -1,27 +1,36 @@
-const makeWASocket = require("@whiskeysockets/baileys").default;
 const {
+  default: makeWASocket,
   useMultiFileAuthState,
-  DisconnectReason,
+  DisconnectReason
 } = require("@whiskeysockets/baileys");
 
-let sock = null;
+const P = require("pino");
+const path = require("path");
+
+let sock;
 let isConnected = false;
 
+// 🔐 Auth folder
+const AUTH_DIR = path.join(__dirname, "auth_info_baileys_v3");
+
 async function connectToWhatsApp() {
-  const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
+  const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
 
   sock = makeWASocket({
     auth: state,
-    printQRInTerminal: false, // deprecated, we handle QR manually
+    logger: P({ level: "silent" }),
+    browser: ["Pregnancy Bot", "Chrome", "1.0"]
   });
 
+  // 💾 Save credentials
+  sock.ev.on("creds.update", saveCreds);
+
+  // 🔌 Connection handler (SAFE)
   sock.ev.on("connection.update", (update) => {
     const { connection, lastDisconnect, qr } = update;
 
-    // 🔑 Show QR in terminal (TEXT)
     if (qr) {
-      console.log("📱 Scan this QR code from WhatsApp:");
-      console.log(qr);
+      console.log("📱 Scan the QR code from WhatsApp → Linked devices");
     }
 
     if (connection === "open") {
@@ -37,42 +46,45 @@ async function connectToWhatsApp() {
 
       console.log("❌ WhatsApp connection closed:", statusCode);
 
-      if (statusCode !== DisconnectReason.loggedOut) {
-        console.log("🔄 Reconnecting to WhatsApp...");
-        connectToWhatsApp();
-      } else {
-        console.log("⚠️ Logged out from WhatsApp. Delete auth folder and re-scan QR.");
+      // 🛑 CRITICAL: Do NOT auto-reconnect on 405
+      if (statusCode === 405) {
+        console.log("🛑 WhatsApp blocked this session (405).");
+        console.log("👉 Delete auth folder and scan QR again.");
+        process.exit(1);
       }
+
+      // ❌ No auto reconnect (prevents ban)
+      process.exit(1);
     }
   });
 
-  sock.ev.on("creds.update", saveCreds);
+  return sock;
 }
 
-// 📤 Send text message
+// 📩 Send text message
 async function sendTextMessage(to, text) {
-  if (!sock || !isConnected) {
-    throw new Error("WhatsApp not connected");
+  if (!isConnected) {
+    console.warn("⚠️ WhatsApp not connected. Message skipped.");
+    return;
   }
 
-  await sock.sendMessage(`${to}@s.whatsapp.net`, {
-    text,
-  });
+  await sock.sendMessage(to, { text });
 }
 
 // 🖼️ Send image message
-async function sendImageMessage(to, imageUrl, caption) {
-  if (!sock || !isConnected) {
-    throw new Error("WhatsApp not connected");
+async function sendImageMessage(to, imageUrl, caption = "") {
+  if (!isConnected) {
+    console.warn("⚠️ WhatsApp not connected. Image skipped.");
+    return;
   }
 
-  await sock.sendMessage(`${to}@s.whatsapp.net`, {
+  await sock.sendMessage(to, {
     image: { url: imageUrl },
-    caption,
+    caption
   });
 }
 
-// 🔌 Connection status
+// 🔍 Connection status (used by scheduler)
 function getConnectionStatus() {
   return isConnected;
 }
@@ -81,5 +93,5 @@ module.exports = {
   connectToWhatsApp,
   sendTextMessage,
   sendImageMessage,
-  getConnectionStatus,
+  getConnectionStatus
 };
