@@ -1,97 +1,64 @@
 const {
   default: makeWASocket,
   useMultiFileAuthState,
-  DisconnectReason
+  DisconnectReason,
+  fetchLatestBaileysVersion,
 } = require("@whiskeysockets/baileys");
-
-const P = require("pino");
-const path = require("path");
+const Pino = require("pino");
+const fs = require("fs");
 
 let sock;
-let isConnected = false;
-
-// 🔐 Auth folder
-const AUTH_DIR = path.join(__dirname, "auth_info_baileys_v3");
 
 async function connectToWhatsApp() {
-  const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
+  const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
+  const { version } = await fetchLatestBaileysVersion();
 
   sock = makeWASocket({
+    version,
     auth: state,
-    logger: P({ level: "silent" }),
-    browser: ["Pregnancy Bot", "Chrome", "1.0"]
+    logger: Pino({ level: "silent" }),
+    browser: ["Pregnancy Bot", "Chrome", "1.0"],
   });
 
-  // 💾 Save credentials
+  // 🔐 PAIRING CODE METHOD
+  if (!sock.authState.creds.registered) {
+    const phoneNumber = process.env.PAIRING_NUMBER; // with country code
+    const code = await sock.requestPairingCode(phoneNumber);
+    console.log("🔐 Pairing Code:", code);
+    console.log("👉 Enter this in WhatsApp → Linked Devices → Link a device");
+  }
+
   sock.ev.on("creds.update", saveCreds);
 
-  // 🔌 Connection handler (SAFE)
   sock.ev.on("connection.update", (update) => {
-    const { connection, lastDisconnect, qr } = update;
-
-    if (qr) {
-      console.log("📱 Scan the QR code from WhatsApp → Linked devices");
-    }
+    const { connection, lastDisconnect } = update;
 
     if (connection === "open") {
-      isConnected = true;
-      console.log("✅ WhatsApp socket OPEN");
+      console.log("✅ WhatsApp connected successfully");
     }
 
     if (connection === "close") {
-      isConnected = false;
+      const reason = lastDisconnect?.error?.output?.statusCode;
 
-      const statusCode =
-        lastDisconnect?.error?.output?.statusCode;
-
-      console.log("❌ WhatsApp connection closed:", statusCode);
-
-      // 🛑 CRITICAL: Do NOT auto-reconnect on 405
-      if (statusCode === 405) {
-        console.log("🛑 WhatsApp blocked this session (405).");
-        console.log("👉 Delete auth folder and scan QR again.");
-        process.exit(1);
+      if (reason === DisconnectReason.loggedOut) {
+        console.log("❌ Logged out. Delete auth_info_baileys and pair again.");
+        fs.rmSync("auth_info_baileys", { recursive: true, force: true });
+      } else {
+        console.log("⚠️ Connection closed. Reconnecting...");
+        connectToWhatsApp();
       }
-
-      // ❌ No auto reconnect (prevents ban)
-      process.exit(1);
     }
   });
 
   return sock;
 }
 
-// 📩 Send text message
-async function sendTextMessage(to, text) {
-  if (!isConnected) {
-    console.warn("⚠️ WhatsApp not connected. Message skipped.");
-    return;
-  }
-
-  await sock.sendMessage(to, { text });
-}
-
-// 🖼️ Send image message
-async function sendImageMessage(to, imageUrl, caption = "") {
-  if (!isConnected) {
-    console.warn("⚠️ WhatsApp not connected. Image skipped.");
-    return;
-  }
-
-  await sock.sendMessage(to, {
-    image: { url: imageUrl },
-    caption
-  });
-}
-
-// 🔍 Connection status (used by scheduler)
-function getConnectionStatus() {
-  return isConnected;
+function getSock() {
+  if (!sock) throw new Error("WhatsApp not connected yet");
+  return sock;
 }
 
 module.exports = {
   connectToWhatsApp,
-  sendTextMessage,
-  sendImageMessage,
-  getConnectionStatus
+  getSock,
 };
