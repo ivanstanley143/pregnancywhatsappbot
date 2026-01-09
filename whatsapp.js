@@ -19,11 +19,30 @@ async function connectToWhatsApp() {
 
   sock.ev.on("creds.update", saveCreds);
 
+  let pairingRequested = false;
+
   sock.ev.on("connection.update", async (update) => {
     const { connection, lastDisconnect } = update;
 
     if (connection === "open") {
       console.log("✅ WhatsApp connected");
+      return;
+    }
+
+    if (
+      !state.creds.registered &&
+      !pairingRequested &&
+      connection === "connecting"
+    ) {
+      pairingRequested = true;
+
+      try {
+        const phone = process.env.WHATSAPP_NUMBER;
+        const code = await sock.requestPairingCode(phone);
+        console.log("📲 PAIRING CODE:", code);
+      } catch (err) {
+        console.error("❌ Pairing failed:", err.message);
+      }
     }
 
     if (connection === "close") {
@@ -33,20 +52,7 @@ async function connectToWhatsApp() {
         console.log("🔁 Reconnecting...");
         connectToWhatsApp();
       } else {
-        console.log("❌ Logged out. Delete auth folder and re-pair.");
-      }
-    }
-
-    // ✅ REQUEST PAIRING ONLY AFTER SOCKET IS READY
-    if (!state.creds.registered && connection === "connecting") {
-      const phone = process.env.WHATSAPP_NUMBER;
-      if (!phone) throw new Error("WHATSAPP_NUMBER missing");
-
-      try {
-        const code = await sock.requestPairingCode(phone);
-        console.log("📲 PAIRING CODE:", code);
-      } catch (err) {
-        console.error("❌ Pairing failed:", err.message);
+        console.log("❌ Logged out. Delete auth folder & retry.");
       }
     }
   });
