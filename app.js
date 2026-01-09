@@ -1,3 +1,4 @@
+const connectDB = require("./db");
 process.env.TIMEZONE = "Asia/Kolkata";
 require("dotenv").config();
 
