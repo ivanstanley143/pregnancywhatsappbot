@@ -1,30 +1,57 @@
+const Reminder = require("../models/Reminder");
+const data = require("../data");
 const moment = require("moment-timezone");
-const data = require("./data");
 
-function now() {
-  return moment().tz(data.TIMEZONE);
+async function seedDailyReminders() {
+  await Reminder.deleteMany({ type: { $in: ["water", "meal"] } });
+
+  const tz = process.env.TIMEZONE || "Asia/Kolkata";
+
+  // WATER reminders
+  for (const t of data.WATER_TIMES) {
+    const [hour, minute] = t.split(":");
+
+    const time = moment()
+      .tz(tz)
+      .hour(parseInt(hour))
+      .minute(parseInt(minute))
+      .second(0);
+
+    if (time.isBefore(moment().tz(tz))) {
+      time.add(1, "day");
+    }
+
+    await Reminder.create({
+      type: "water",
+      scheduledAt: time.toDate()
+    });
+  }
+
+  // MEAL reminders
+  for (const timeKey of Object.keys(data.MEALS)) {
+    const [hour, minute] = timeKey.split(":");
+
+    const time = moment()
+      .tz(tz)
+      .hour(parseInt(hour))
+      .minute(parseInt(minute))
+      .second(0);
+
+    if (time.isBefore(moment().tz(tz))) {
+      time.add(1, "day");
+    }
+
+    await Reminder.create({
+      type: "meal",
+      scheduledAt: time.toDate(),
+      data: {
+        title_en: data.MEALS[timeKey][0],
+        title_ml: data.MEALS[timeKey][1]
+      }
+    });
+  }
+
+  console.log("✅ Daily water + meal reminders seeded");
 }
 
-function getPregnancyWeek() {
-  const lmp = moment(data.LMP);
-  const days = now().diff(lmp, "days");
-  return Math.max(1, Math.floor(days / 7) + 1);
-}
-
-function getTrimester(week) {
-  if (week <= 12) return 1;
-  if (week <= 27) return 2;
-  return 3;
-}
-
-function format(en, ml = "") {
-  return `Hi ${data.NAME} ❤️🤰🏻
-Assalamu Alaikkum 🌸
-
-${en}
-${ml ? "\n\n" + ml : ""}
-
-${data.FOOTER}`;
-}
-
-module.exports = { now, getPregnancyWeek, getTrimester, format };
+module.exports = { seedDailyReminders };
