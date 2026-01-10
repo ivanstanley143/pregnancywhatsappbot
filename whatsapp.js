@@ -4,6 +4,7 @@ const {
   DisconnectReason,
   fetchLatestBaileysVersion,
 } = require("@whiskeysockets/baileys");
+
 const pino = require("pino");
 
 async function connectToWhatsApp() {
@@ -14,45 +15,29 @@ async function connectToWhatsApp() {
     version,
     auth: state,
     logger: pino({ level: "silent" }),
-    printQRInTerminal: false,
+    printQRInTerminal: true, // ✅ QR ENABLED
+    browser: ["PregnancyBot", "Chrome", "1.0"],
+    syncFullHistory: false,
   });
 
   sock.ev.on("creds.update", saveCreds);
 
-  let pairingRequested = false;
-
-  sock.ev.on("connection.update", async (update) => {
+  sock.ev.on("connection.update", (update) => {
     const { connection, lastDisconnect } = update;
 
     if (connection === "open") {
-      console.log("✅ WhatsApp connected");
-      return;
-    }
-
-    if (
-      !state.creds.registered &&
-      !pairingRequested &&
-      connection === "connecting"
-    ) {
-      pairingRequested = true;
-
-      try {
-        const phone = process.env.WHATSAPP_NUMBER;
-        const code = await sock.requestPairingCode(phone);
-        console.log("📲 PAIRING CODE:", code);
-      } catch (err) {
-        console.error("❌ Pairing failed:", err.message);
-      }
+      console.log("✅ WhatsApp connected successfully");
     }
 
     if (connection === "close") {
       const reason = lastDisconnect?.error?.output?.statusCode;
 
-      if (reason !== DisconnectReason.loggedOut) {
-        console.log("🔁 Reconnecting...");
-        connectToWhatsApp();
+      if (reason === DisconnectReason.loggedOut) {
+        console.log("❌ Logged out. Delete auth_info_baileys and scan QR again.");
+        process.exit(1);
       } else {
-        console.log("❌ Logged out. Delete auth folder & retry.");
+        console.log("🔁 Connection closed. Restarting...");
+        connectToWhatsApp();
       }
     }
   });
