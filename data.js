@@ -1,8 +1,9 @@
 module.exports = {
   // 👩 Mother details
   NAME: "Murshida Sulthana",
-  DISCLAIMER: "Follow Ziyadka’s Advice",
-
+  TIMEZONE: "Asia/Kolkata",
+  FOOTER: "Follow Ziyadka’s Advice",
+  
   DOB: "1993-06-24",
   LMP: "2025-10-18",
 
