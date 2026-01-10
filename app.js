@@ -9,20 +9,28 @@ const seedReminders = require("./services/reminderSeeder");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🌐 Health check (important for servers)
+// 🌐 Health check
 app.get("/", (req, res) => {
   res.send("Pregnancy WhatsApp Bot is running ✅");
 });
 
-// 🗄️ Connect MongoDB
-connectDB();
+// ⏰ PROCESS REMINDERS (every minute)
+let isRunning = false;
+async function safeProcessReminders() {
+  if (isRunning) return;
+  isRunning = true;
 
-// 📱 Connect WhatsApp
-connectToWhatsApp();
+  try {
+    await processReminders();
+  } catch (err) {
+    console.error("❌ Reminder engine error:", err.message);
+  } finally {
+    isRunning = false;
+  }
+}
 
-// 🌱 DAILY SEEDING LOGIC (water + meals every day)
+// 🌱 DAILY SEEDING LOGIC
 let lastSeedDate = null;
-
 async function dailySeed() {
   const today = new Date().toDateString();
 
@@ -38,31 +46,23 @@ async function dailySeed() {
   }
 }
 
-// Run once on startup
-dailySeed();
+// 🚀 ORDERED BOOTSTRAP (IMPORTANT)
+(async () => {
+  // 1️⃣ WhatsApp FIRST (pairing needs clean stdin)
+  await connectToWhatsApp();
 
-// Check every hour (safe for VPS)
-setInterval(dailySeed, 60 * 60 * 1000);
+  // 2️⃣ MongoDB
+  await connectDB();
 
-// ⏰ PROCESS REMINDERS (every minute)
-let isRunning = false;
+  // 3️⃣ Seed once on startup
+  await dailySeed();
 
-async function safeProcessReminders() {
-  if (isRunning) return;
-  isRunning = true;
+  // 4️⃣ Schedulers
+  setInterval(dailySeed, 60 * 60 * 1000);   // hourly check
+  setInterval(safeProcessReminders, 60 * 1000); // every minute
 
-  try {
-    await processReminders();
-  } catch (err) {
-    console.error("❌ Reminder engine error:", err.message);
-  } finally {
-    isRunning = false;
-  }
-}
-
-setInterval(safeProcessReminders, 60 * 1000);
-
-// 🚀 Start server
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+  // 5️⃣ Start server LAST
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
+})();
