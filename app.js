@@ -1,40 +1,68 @@
 require("dotenv").config();
-process.env.TIMEZONE = "Asia/Kolkata";
-
 const express = require("express");
-const connectDB = require("./db"); // ✅ ADD MongoDB connection
+
+const connectDB = require("./db");
 const { connectToWhatsApp } = require("./whatsapp");
 const { processReminders } = require("./services/reminderEngine");
+const seedReminders = require("./services/reminderSeeder");
 
 const app = express();
-app.use(express.json());
+const PORT = process.env.PORT || 3000;
 
-// 🌐 Health check
+// 🌐 Health check (important for servers)
 app.get("/", (req, res) => {
-  res.json({ status: "ok", service: "pregnancywhatsappbot" });
+  res.send("Pregnancy WhatsApp Bot is running ✅");
 });
 
-// 🔌 CONNECT MONGODB FIRST
+// 🗄️ Connect MongoDB
 connectDB();
 
-// 🚀 Start WhatsApp + Reminder Engine
-connectToWhatsApp()
-  .then(() => {
-    console.log("🤖 Pregnancy WhatsApp Bot started");
+// 📱 Connect WhatsApp
+connectToWhatsApp();
 
-    // 🔁 Replay missed reminders
-    processReminders();
+// 🌱 DAILY SEEDING LOGIC (water + meals every day)
+let lastSeedDate = null;
 
-    // ⏱️ Run every minute
-    setInterval(processReminders, 60 * 1000);
-  })
-  .catch((err) => {
-    console.error("❌ Failed to start bot:", err);
-    process.exit(1);
-  });
+async function dailySeed() {
+  const today = new Date().toDateString();
 
-// 🌐 HTTP server
-const PORT = process.env.PORT || 3000;
+  if (lastSeedDate !== today) {
+    console.log("🌱 Seeding daily reminders...");
+    try {
+      await seedReminders();
+      lastSeedDate = today;
+      console.log("✅ Daily reminders seeded");
+    } catch (err) {
+      console.error("❌ Seeding failed:", err.message);
+    }
+  }
+}
+
+// Run once on startup
+dailySeed();
+
+// Check every hour (safe for VPS)
+setInterval(dailySeed, 60 * 60 * 1000);
+
+// ⏰ PROCESS REMINDERS (every minute)
+let isRunning = false;
+
+async function safeProcessReminders() {
+  if (isRunning) return;
+  isRunning = true;
+
+  try {
+    await processReminders();
+  } catch (err) {
+    console.error("❌ Reminder engine error:", err.message);
+  } finally {
+    isRunning = false;
+  }
+}
+
+setInterval(safeProcessReminders, 60 * 1000);
+
+// 🚀 Start server
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🌐 HTTP server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
