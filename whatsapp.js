@@ -3,6 +3,7 @@ const {
   useMultiFileAuthState,
   DisconnectReason
 } = require("@whiskeysockets/baileys");
+
 const P = require("pino");
 const readline = require("readline");
 
@@ -31,6 +32,7 @@ async function connectToWhatsApp() {
 
     if (connection === "close") {
       const code = lastDisconnect?.error?.output?.statusCode;
+
       if (code !== DisconnectReason.loggedOut) {
         console.log("⚠️ WhatsApp disconnected, reconnecting...");
         setTimeout(() => {
@@ -43,7 +45,7 @@ async function connectToWhatsApp() {
     }
   });
 
-  // 🔐 FIRST-TIME PAIRING (RELIABLE ON VPS)
+  // 🔐 FIRST-TIME PAIRING ONLY
   if (!state.creds.registered) {
     const rl = readline.createInterface({
       input: process.stdin,
@@ -65,4 +67,25 @@ async function connectToWhatsApp() {
   return sock;
 }
 
-module.exports = { connectToWhatsApp };
+// ✅ SEND TEXT MESSAGE
+async function sendTextMessage(number, text) {
+  if (!sock) throw new Error("WhatsApp not connected");
+  const jid = `${number}@s.whatsapp.net`;
+  await sock.sendMessage(jid, { text });
+}
+
+// ✅ SEND IMAGE MESSAGE
+async function sendImageMessage(number, imageUrl, caption) {
+  if (!sock) throw new Error("WhatsApp not connected");
+  const jid = `${number}@s.whatsapp.net`;
+  await sock.sendMessage(jid, {
+    image: { url: imageUrl },
+    caption
+  });
+}
+
+module.exports = {
+  connectToWhatsApp,
+  sendTextMessage,
+  sendImageMessage
+};
