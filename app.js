@@ -1,11 +1,10 @@
 require("dotenv").config();
 const express = require("express");
-const webhook = require("./webhook");
 const cron = require("node-cron");
 
 const connectDB = require("./db");
 const logic = require("./logic");
-const sendMessage = require("./whatsappCloud");
+const { sendTextMessage, sendImageMessage } = require("./whatsappCloud");
 
 // Engines
 const { seedDailyReminders } = require("./services/dailyReminderSeeder");
@@ -20,7 +19,7 @@ const app = express();
 app.use(express.json());
 
 /* =========================
-   WEBHOOK VERIFY (META)
+   META WEBHOOK VERIFY
 ========================= */
 app.get("/webhook", (req, res) => {
   const mode = req.query["hub.mode"];
@@ -28,14 +27,14 @@ app.get("/webhook", (req, res) => {
   const challenge = req.query["hub.challenge"];
 
   if (mode === "subscribe" && token === process.env.VERIFY_TOKEN) {
-    console.log("✅ Webhook verified");
+    console.log("✅ Webhook verified by Meta");
     return res.status(200).send(challenge);
   }
   return res.sendStatus(403);
 });
 
 /* =========================
-   WEBHOOK RECEIVE
+   META WEBHOOK RECEIVE
 ========================= */
 app.post("/webhook", async (req, res) => {
   try {
@@ -54,14 +53,14 @@ app.post("/webhook", async (req, res) => {
     if (!reply) return res.sendStatus(200);
 
     if (typeof reply === "string") {
-      await sendMessage(from, reply);
+      await sendTextMessage(from, reply);
     } else if (reply.type === "image") {
-      await sendMessage(from, reply.caption, reply.image);
+      await sendImageMessage(from, reply.image, reply.caption);
     }
 
     res.sendStatus(200);
   } catch (err) {
-    console.error("Webhook error:", err);
+    console.error("Webhook error:", err.message);
     res.sendStatus(200);
   }
 });
@@ -72,22 +71,25 @@ app.post("/webhook", async (req, res) => {
 (async () => {
   await connectDB();
 
-  // 🌱 Seed once per day
-  seedDailyReminders();
+  // 🌱 Seed daily reminders once on boot
+  await seedDailyReminders();
 
-  // ⏰ Minute-based processors
+  // ⏰ Run every minute
   setInterval(processDailyReminders, 60 * 1000);
   setInterval(processAppointmentReminders, 60 * 1000);
 
   // 📅 Weekly & scheduled jobs
-  cron.schedule("0 9 * * 1", sendWeeklyUpdate);
-  cron.schedule("0 10 * * *", processBabyGrowth);
-  cron.schedule("0 11 * * *", processTrimesterChange);
-  cron.schedule("0 9 * * 5", sendWeeklyDua);
-  cron.schedule(process.env.DAILY_DUA_TIME + " * * *", sendDailyDua);
+  cron.schedule("0 9 * * 1", sendWeeklyUpdate);        // Monday 9am
+  cron.schedule("0 10 * * *", processBabyGrowth);     // Daily 10am
+  cron.schedule("0 11 * * *", processTrimesterChange); // Daily 11am
+  cron.schedule("0 9 * * 5", sendWeeklyDua);          // Friday 9am
+
+  // ✅ FIXED DAILY DUA TIME
+  const [duaHour, duaMinute] = process.env.DAILY_DUA_TIME.split(":");
+  cron.schedule(`${duaMinute} ${duaHour} * * *`, sendDailyDua);
 
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () =>
-    console.log(`🚀 Pregnancy WhatsApp Bot running on port ${PORT}`)
-  );
+  app.listen(PORT, () => {
+    console.log(`🚀 Pregnancy WhatsApp Bot running on port ${PORT}`);
+  });
 })();
