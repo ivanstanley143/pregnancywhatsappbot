@@ -10,6 +10,8 @@ if (!number) {
   process.exit(1);
 }
 
+const delay = (ms) => new Promise(res => setTimeout(res, ms));
+
 async function pair() {
   const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
 
@@ -26,6 +28,9 @@ async function pair() {
 
     if (connection === "open") {
       console.log("✅ WhatsApp socket OPEN");
+      console.log("⏳ Waiting 5 seconds for stability...");
+
+      await delay(5000); // 🔑 THIS FIXES 428 ERROR
 
       try {
         const code = await sock.requestPairingCode(number);
