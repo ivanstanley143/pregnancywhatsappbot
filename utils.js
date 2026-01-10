@@ -1,5 +1,5 @@
 const Reminder = require("./models/Reminder");
-const data = require("../data");
+const data = require("./data");
 const moment = require("moment-timezone");
 
 async function seedDailyReminders() {
