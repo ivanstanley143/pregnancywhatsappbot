@@ -1,8 +1,8 @@
-require("dotenv").config();
 const {
   default: makeWASocket,
   useMultiFileAuthState
 } = require("@whiskeysockets/baileys");
+
 const P = require("pino");
 
 async function pair() {
@@ -15,24 +15,21 @@ async function pair() {
 
   sock.ev.on("creds.update", saveCreds);
 
+  // ⚠️ WAIT until socket is ready
+  await new Promise((resolve) => setTimeout(resolve, 4000));
+
   if (!state.creds.registered) {
-    const number = process.env.WHATSAPP_NUMBER;
+    const number = process.argv[2];
+
     if (!number) {
-      console.log("❌ WHATSAPP_NUMBER missing");
+      console.log("❌ Usage: node pair.js 9198XXXXXXXX");
       process.exit(1);
     }
 
     const code = await sock.requestPairingCode(number);
     console.log("\n🔐 PAIRING CODE:", code);
-    console.log("👉 WhatsApp → Linked Devices → Enter code\n");
+    console.log("👉 WhatsApp → Linked Devices → Link a device → Enter code\n");
   }
-
-  sock.ev.on("connection.update", (u) => {
-    if (u.connection === "open") {
-      console.log("✅ WhatsApp paired successfully");
-      process.exit(0);
-    }
-  });
 }
 
 pair();
