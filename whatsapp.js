@@ -28,7 +28,7 @@ async function connectToWhatsApp() {
     // ✅ SHOW QR
     if (qr) {
       console.log("📱 Scan this QR with WhatsApp");
-      qrcode.generate(qr, { small: true });
+      qrcode.generate(qr, { small: false });
     }
 
     if (connection === "open") {
@@ -65,3 +65,4 @@ async function connectToWhatsApp() {
 module.exports = {
   connectToWhatsApp
 };
+
