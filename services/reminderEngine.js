@@ -9,19 +9,25 @@ const {
 async function processReminders() {
   const now = new Date();
 
-  const reminders = await Reminder.find({
-    sent: false,
-    scheduledAt: { $lte: now }
-  });
+  while (true) {
+    // 🔐 Atomic lock to prevent duplicate sends
+    const reminder = await Reminder.findOneAndUpdate(
+      { sent: false, scheduledAt: { $lte: now } },
+      { sent: true, sentAt: new Date() }
+    );
 
-  for (const r of reminders) {
+    if (!reminder) break;
+
     try {
-      await dispatchReminder(r);
-      r.sent = true;
-      r.sentAt = new Date();
-      await r.save();
+      await dispatchReminder(reminder);
+      console.log("✅ Sent:", reminder.type, "→", reminder.user);
     } catch (err) {
-      console.error("❌ Reminder send failed:", err.message);
+      console.error("❌ Send failed:", err.message);
+
+      // 🔁 Rollback so it can retry later
+      reminder.sent = false;
+      reminder.sentAt = null;
+      await reminder.save();
     }
   }
 }
@@ -47,7 +53,7 @@ async function dispatchReminder(r) {
     case "dua":
       return sendTextMessage(
         r.user,
-        `🤲 Weekly Dua\n\n${data.WEEKLY_DUA[r.data.week]}\n\n${data.DISCLAIMER}`
+        `🤲 Weekly Dua\n\n${data.WEEKLY_DUA[r.data.week] || ""}\n\n${data.DISCLAIMER}`
       );
 
     case "appointment":
@@ -60,6 +66,17 @@ async function dispatchReminder(r) {
       );
 
     case "week":
+      // 🛡️ SAFE FALLBACK IF IMAGE IS MISSING
+      if (!r.data.image) {
+        return sendTextMessage(
+          r.user,
+          utils.format(
+            `🤰 Week ${r.data.week}\nBaby growth update coming soon.`,
+            `🤰 ${r.data.week} ആഴ്ച\nകുഞ്ഞിന്റെ വിവരങ്ങൾ ഉടൻ ലഭിക്കും`
+          )
+        );
+      }
+
       return sendImageMessage(
         r.user,
         r.data.image,
@@ -78,6 +95,9 @@ async function dispatchReminder(r) {
           `🌸 ട്രൈമെസ്റ്റർ ${r.data.trimester} ആരംഭിച്ചു`
         )
       );
+
+    default:
+      console.warn("⚠️ Unknown reminder type:", r.type);
   }
 }
 
