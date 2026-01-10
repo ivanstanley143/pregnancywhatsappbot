@@ -4,6 +4,7 @@ const {
   DisconnectReason
 } = require("@whiskeysockets/baileys");
 const P = require("pino");
+const qrcode = require("qrcode-terminal");
 
 let sock;
 let isConnecting = false;
@@ -16,14 +17,23 @@ async function connectToWhatsApp() {
 
   sock = makeWASocket({
     auth: state,
-    logger: P({ level: "silent" }),
-    printQRInTerminal: true
+    logger: P({ level: "silent" })
   });
 
   sock.ev.on("creds.update", saveCreds);
 
   sock.ev.on("connection.update", (update) => {
-    const { connection, lastDisconnect } = update;
+    const { connection, lastDisconnect, qr } = update;
+
+    // ✅ EXPLICIT QR HANDLING
+    if (qr) {
+      console.log("📱 Scan this QR with WhatsApp");
+      qrcode.generate(qr, { small: true });
+    }
+
+    if (connection === "open") {
+      console.log("✅ WhatsApp connected");
+    }
 
     if (connection === "close") {
       const shouldReconnect =
@@ -38,36 +48,12 @@ async function connectToWhatsApp() {
         console.log("❌ Logged out. Delete auth_info_baileys and re-scan QR");
       }
     }
-
-    if (connection === "open") {
-      console.log("✅ WhatsApp connected");
-    }
   });
 
   isConnecting = false;
   return sock;
 }
 
-// 📩 Send text
-async function sendTextMessage(number, text) {
-  if (!sock) throw new Error("WhatsApp not connected");
-  const jid = `${number}@s.whatsapp.net`;
-  await sock.sendMessage(jid, { text });
-}
-
-// 🖼️ Send image
-async function sendImageMessage(number, imageUrl, caption) {
-  if (!sock) throw new Error("WhatsApp not connected");
-  const jid = `${number}@s.whatsapp.net`;
-  await sock.sendMessage(jid, {
-    image: { url: imageUrl },
-    caption
-  });
-}
-
 module.exports = {
-  connectToWhatsApp,
-  sendTextMessage,
-  sendImageMessage
+  connectToWhatsApp
 };
-
