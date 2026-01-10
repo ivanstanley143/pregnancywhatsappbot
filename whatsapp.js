@@ -33,7 +33,7 @@ async function connectToWhatsApp() {
       console.log("⚠️ WhatsApp disconnected");
 
       if (shouldReconnect) {
-        setTimeout(connectToWhatsApp, 5000);
+        setTimeout(connectToWhatsApp, 30000);
       } else {
         console.log("❌ Logged out. Delete auth_info_baileys and re-scan QR");
       }
@@ -70,3 +70,4 @@ module.exports = {
   sendTextMessage,
   sendImageMessage
 };
+
