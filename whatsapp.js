@@ -8,10 +8,9 @@ const P = require("pino");
 const readline = require("readline");
 
 let sock;
-let isConnecting = false;
-let pairingDone = false; // ⭐ IMPORTANT
+let pairingInProgress = false;
 
-async function askPhoneNumber() {
+function askPhoneNumber() {
   return new Promise((resolve) => {
     const rl = readline.createInterface({
       input: process.stdin,
@@ -29,9 +28,6 @@ async function askPhoneNumber() {
 }
 
 async function connectToWhatsApp() {
-  if (isConnecting) return sock;
-  isConnecting = true;
-
   const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
 
   sock = makeWASocket({
@@ -44,47 +40,43 @@ async function connectToWhatsApp() {
   sock.ev.on("connection.update", async (update) => {
     const { connection, lastDisconnect } = update;
 
-    if (connection === "open") {
+    // 🔐 START PAIRING ONLY WHEN SOCKET IS READY
+    if (connection === "open" && !state.creds.registered && !pairingInProgress) {
+      pairingInProgress = true;
+
+      const number = await askPhoneNumber();
+      const code = await sock.requestPairingCode(number);
+
+      console.log("\n🔐 PAIRING CODE:", code);
+      console.log("👉 WhatsApp → Linked Devices → Link a device → Enter code\n");
+    }
+
+    if (connection === "open" && state.creds.registered) {
       console.log("✅ WhatsApp connected");
     }
 
     if (connection === "close") {
-      const code = lastDisconnect?.error?.output?.statusCode;
+      const status = lastDisconnect?.error?.output?.statusCode;
 
-      if (code !== DisconnectReason.loggedOut) {
-        console.log("⚠️ WhatsApp disconnected, reconnecting...");
-        setTimeout(() => {
-          isConnecting = false;
-          connectToWhatsApp();
-        }, 30000);
+      if (status !== DisconnectReason.loggedOut) {
+        console.log("⚠️ WhatsApp disconnected, reconnecting in 30s...");
+        setTimeout(connectToWhatsApp, 30000);
       } else {
         console.log("❌ Logged out. Delete auth_info_baileys and re-pair");
       }
     }
   });
 
-  // 🔐 ASK PAIRING CODE ONCE ONLY
-  if (!state.creds.registered && !pairingDone) {
-    pairingDone = true;
-
-    const number = await askPhoneNumber();
-    const code = await sock.requestPairingCode(number);
-
-    console.log("\n🔐 PAIRING CODE:", code);
-    console.log("👉 WhatsApp → Linked Devices → Link a device → Enter code\n");
-  }
-
-  isConnecting = false;
   return sock;
 }
 
-// ✅ SEND TEXT
+// 📩 SEND TEXT
 async function sendTextMessage(number, text) {
   if (!sock) throw new Error("WhatsApp not connected");
   await sock.sendMessage(`${number}@s.whatsapp.net`, { text });
 }
 
-// ✅ SEND IMAGE
+// 🖼️ SEND IMAGE
 async function sendImageMessage(number, imageUrl, caption) {
   if (!sock) throw new Error("WhatsApp not connected");
   await sock.sendMessage(`${number}@s.whatsapp.net`, {
