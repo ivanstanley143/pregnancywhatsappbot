@@ -6,7 +6,7 @@ const P = require("pino");
 
 const number = process.argv[2];
 if (!number) {
-  console.log("❌ Usage: node pair.js 91XXXXXXXXXX");
+  console.log("❌ Usage: node pair.js 66XXXXXXXXX");
   process.exit(1);
 }
 
