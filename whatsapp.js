@@ -25,7 +25,7 @@ async function connectToWhatsApp() {
   sock.ev.on("connection.update", (update) => {
     const { connection, lastDisconnect, qr } = update;
 
-    // ✅ EXPLICIT QR HANDLING
+    // ✅ SHOW QR
     if (qr) {
       console.log("📱 Scan this QR with WhatsApp");
       qrcode.generate(qr, { small: true });
@@ -36,14 +36,22 @@ async function connectToWhatsApp() {
     }
 
     if (connection === "close") {
-      const shouldReconnect =
-        lastDisconnect?.error?.output?.statusCode !==
-        DisconnectReason.loggedOut;
+      const statusCode = lastDisconnect?.error?.output?.statusCode;
+
+      // 🔐 FIRST LOGIN → DO NOT RECONNECT
+      if (!state.creds.registered) {
+        console.log("⏳ Waiting for QR scan...");
+        return;
+      }
 
       console.log("⚠️ WhatsApp disconnected");
 
-      if (shouldReconnect) {
-        setTimeout(connectToWhatsApp, 30000);
+      // 🔁 RECONNECT ONLY IF NOT LOGGED OUT
+      if (statusCode !== DisconnectReason.loggedOut) {
+        setTimeout(() => {
+          isConnecting = false;
+          connectToWhatsApp();
+        }, 30000);
       } else {
         console.log("❌ Logged out. Delete auth_info_baileys and re-scan QR");
       }
