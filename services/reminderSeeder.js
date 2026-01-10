@@ -87,17 +87,16 @@ async function seedReminders() {
   }
 
   // 🌸 TRIMESTERS (USER + HUSBAND)
-  [1, 2, 3].forEach((t) => {
-    for (const u of [data.USER, data.HUSBAND]) {
-      await Reminder.create({
-        user: u,
-        type: "trimester",
-        scheduledAt: utils.trimesterStartDate(t),
-        data: { trimester: t }
-      });
-    }
-  });
-
+for (const t of [1, 2, 3]) {
+  for (const u of [data.USER, data.HUSBAND]) {
+    await Reminder.create({
+      user: u,
+      type: "trimester",
+      scheduledAt: utils.trimesterStartDate(t),
+      data: { trimester: t }
+    });
+  }
+}
   console.log("✅ Reminder seeding completed");
 }
 
