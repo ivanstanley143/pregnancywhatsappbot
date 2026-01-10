@@ -1,129 +1,259 @@
 module.exports = {
+  // 👩 Mother details
   NAME: "Murshida Sulthana",
   DISCLAIMER: "Follow Ziyadka’s Advice",
 
   DOB: "1993-06-24",
   LMP: "2025-10-18",
 
+  // 📱 WhatsApp numbers (without +)
   USER: "919074616114",
   HUSBAND: "918921285711",
 
-  // Lists used for commands (safe foods / avoid foods / limit foods)
-  SAFE_FOODS: [
-    "Apple",
-    "Banana",
-    "Orange",
-    "Grapes",
-    "Pomegranate",
-    "Avocado",
-    "Mango",
-    "Pear",
-    "Watermelon",
-    "Carrot",
-    "Beetroot",
-    "Spinach",
-    "Broccoli",
-    "Pumpkin",
-    "Sweet potato",
-    "Rice",
-    "Chapati",
-    "Oats",
-    "Milk",
-    "Curd",
-    "Paneer",
-    "Egg (well cooked)",
-    "Chicken (well cooked)",
-    "Fish (low mercury)"
-  ],
-
-  AVOID_FOODS: [
-    "Papaya",
-    "Pineapple",
-    "Raw egg",
-    "Raw fish",
-    "Raw meat",
-    "Alcohol",
-    "Smoking",
-    "Energy drink",
-    "Unpasteurized milk",
-    "Soft cheese",
-    "Street food"
-  ],
-
-  LIMIT_FOODS: [
-    "Coffee",
-    "Tea",
-    "Chocolate",
-    "Fried food",
-    "Junk food",
-    "Salt",
-    "Sugar"
-  ],
-
+  // ⏰ Daily reminder times
   MEAL_TIMES: ["09:00","11:00","14:00","17:00","19:30","21:30"],
   WATER_TIMES: ["07:30","09:30","11:30","13:30","15:30","17:30","19:30","21:00"],
 
-  // Database used for single-word food replies
-  FOOD_DB: {
-    // 🟢 SAFE FOODS
-    apple: "✅ Safe – rich in fiber and vitamins",
-    banana: "✅ Safe – good for digestion and energy",
-    orange: "✅ Safe – vitamin C rich",
-    grapes: "✅ Safe – antioxidants (wash well)",
-    pomegranate: "✅ Safe – improves hemoglobin",
-    avocado: "✅ Safe – healthy fats",
-    mango: "✅ Safe – vitamin A (in moderation)",
-    pear: "✅ Safe – fiber rich",
-    watermelon: "✅ Safe – hydration",
-    carrot: "✅ Safe – beta carotene",
-    beetroot: "✅ Safe – supports blood levels",
-    spinach: "✅ Safe – iron & folate",
-    broccoli: "✅ Safe – calcium & fiber",
-    pumpkin: "✅ Safe – vitamins",
-    sweetpotato: "✅ Safe – energy & fiber",
-    rice: "✅ Safe – easy to digest",
-    chapati: "✅ Safe – whole grain energy",
-    oats: "✅ Safe – fiber rich",
-    milk: "✅ Safe – calcium source (boiled)",
-    curd: "✅ Safe – probiotics",
-    paneer: "✅ Safe – protein source",
-    egg: "✅ Safe – protein (well cooked)",
-    chicken: "✅ Safe – protein (well cooked)",
-    fish: "✅ Safe – omega-3 (low mercury, well cooked)",
-
-    // 🔴 AVOID FOODS
-    papaya: "❌ Avoid – may trigger uterine contractions",
-    pineapple: "❌ Avoid – contains bromelain",
-    rawegg: "❌ Avoid – salmonella risk",
-    rawfish: "❌ Avoid – infection risk",
-    rawmeat: "❌ Avoid – harmful bacteria",
-    alcohol: "❌ Avoid – harms baby development",
-    smoking: "❌ Avoid – serious pregnancy risk",
-    energydrink: "❌ Avoid – high caffeine",
-    unpasteurizedmilk: "❌ Avoid – listeria risk",
-    softcheese: "❌ Avoid – bacterial risk",
-    streetfood: "❌ Avoid – hygiene issues",
-
-    // 🟡 LIMIT FOODS
-    coffee: "⚠️ Limit – caffeine intake",
-    tea: "⚠️ Limit – caffeine",
-    chocolate: "⚠️ Limit – sugar & caffeine",
-    friedfood: "⚠️ Limit – digestion issues",
-    junkfood: "⚠️ Limit – low nutrition",
-    salt: "⚠️ Limit – swelling risk",
-    sugar: "⚠️ Limit – gestational diabetes risk"
+  // 🍽️ Meal messages (English + Malayalam)
+  MEALS: {
+    "09:00": ["Breakfast 🍽️", "പ്രഭാതഭക്ഷണം 🍽️"],
+    "11:00": ["Snack 🍎", "ഇടക്കാല ലഘുഭക്ഷണം 🍎"],
+    "14:00": ["Lunch 🥗", "ഉച്ചഭക്ഷണം 🥗"],
+    "17:00": ["Evening snack ☕", "സായാഹ്ന ലഘുഭക്ഷണം ☕"],
+    "19:30": ["Dinner 🍽️", "രാത്രി ഭക്ഷണം 🍽️"],
+    "21:30": ["Light food 🥛", "ലഘുഭക്ഷണം 🥛"]
   },
 
-  // Images for list commands
-  SAFE_FOOD_IMAGE:
-    "https://raw.githubusercontent.com/ivanstanley143/pregnancy-wa-bot/main/images/file_000000003b5c7207b2003e19bea0cbed.png",
+  // 🕊️ Daily dua reminder time
+  DAILY_DUA_TIME: "06:30",
 
-  AVOID_FOOD_IMAGE:
-    "https://raw.githubusercontent.com/ivanstanley143/pregnancy-wa-bot/main/images/file_0000000083a47207af592c9b4c3d45c0.png",
+  // =======================
+  // 🍎 MASTER FOOD DATABASE
+  // =======================
+  FOOD_DB: {
+    // 🟢 SAFE FOODS
+    apple: {
+      label: "Apple 🍎",
+      status: "SAFE",
+      details: "Rich in fiber, vitamins and antioxidants. Helps digestion."
+    },
+    banana: {
+      label: "Banana 🍌",
+      status: "SAFE",
+      details: "Good source of energy and potassium. Helps reduce nausea."
+    },
+    orange: {
+      label: "Orange 🍊",
+      status: "SAFE",
+      details: "High in Vitamin C. Boosts immunity and iron absorption."
+    },
+    grapes: {
+      label: "Grapes 🍇",
+      status: "SAFE",
+      details: "Contains antioxidants. Wash well before eating."
+    },
+    pomegranate: {
+      label: "Pomegranate 🍎",
+      status: "SAFE",
+      details: "Improves hemoglobin and supports blood health."
+    },
+    avocado: {
+      label: "Avocado 🥑",
+      status: "SAFE",
+      details: "Healthy fats. Supports baby’s brain development."
+    },
+    mango: {
+      label: "Mango 🥭",
+      status: "SAFE",
+      details: "Vitamin A rich. Eat in moderation."
+    },
+    pear: {
+      label: "Pear 🍐",
+      status: "SAFE",
+      details: "Fiber rich. Prevents constipation."
+    },
+    watermelon: {
+      label: "Watermelon 🍉",
+      status: "SAFE",
+      details: "Helps hydration and reduces swelling."
+    },
+    carrot: {
+      label: "Carrot 🥕",
+      status: "SAFE",
+      details: "Rich in beta-carotene. Good for vision."
+    },
+    beetroot: {
+      label: "Beetroot 🍠",
+      status: "SAFE",
+      details: "Supports blood circulation and hemoglobin."
+    },
+    spinach: {
+      label: "Spinach 🥬",
+      status: "SAFE",
+      details: "High in iron and folate. Prevents anemia."
+    },
+    broccoli: {
+      label: "Broccoli 🥦",
+      status: "SAFE",
+      details: "Calcium and fiber rich. Strengthens bones."
+    },
+    pumpkin: {
+      label: "Pumpkin 🎃",
+      status: "SAFE",
+      details: "Vitamin rich. Supports immunity."
+    },
+    sweetpotato: {
+      label: "Sweet Potato 🍠",
+      status: "SAFE",
+      details: "Energy rich and good fiber source."
+    },
+    rice: {
+      label: "Rice 🍚",
+      status: "SAFE",
+      details: "Easy to digest and good energy source."
+    },
+    chapati: {
+      label: "Chapati 🫓",
+      status: "SAFE",
+      details: "Whole grain energy source."
+    },
+    oats: {
+      label: "Oats 🌾",
+      status: "SAFE",
+      details: "High fiber. Helps control sugar levels."
+    },
+    milk: {
+      label: "Milk 🥛",
+      status: "SAFE",
+      details: "Excellent calcium source. Consume boiled milk."
+    },
+    curd: {
+      label: "Curd 🥣",
+      status: "SAFE",
+      details: "Probiotics. Good for digestion."
+    },
+    paneer: {
+      label: "Paneer 🧀",
+      status: "SAFE",
+      details: "High protein and calcium."
+    },
+    egg: {
+      label: "Egg 🥚",
+      status: "SAFE",
+      details: "High-quality protein. Must be well cooked."
+    },
+    chicken: {
+      label: "Chicken 🍗",
+      status: "SAFE",
+      details: "Lean protein. Always well cooked."
+    },
+    fish: {
+      label: "Fish 🐟",
+      status: "SAFE",
+      details: "Omega-3 fatty acids. Choose low-mercury fish."
+    },
 
-  LIMIT_FOOD_IMAGE:
-    "https://res.cloudinary.com/drcqtmobe/image/upload/v1767795305/file_000000002d907207a5b1cf1c9165aa80_ina15s.png",
+    // 🟡 LIMIT FOODS
+    coffee: {
+      label: "Coffee ☕",
+      status: "LIMIT",
+      details: "High caffeine. Limit to one cup per day."
+    },
+    tea: {
+      label: "Tea 🍵",
+      status: "LIMIT",
+      details: "Contains caffeine. Avoid excess intake."
+    },
+    chocolate: {
+      label: "Chocolate 🍫",
+      status: "LIMIT",
+      details: "High sugar and caffeine. Eat occasionally."
+    },
+    friedfood: {
+      label: "Fried Food 🍟",
+      status: "LIMIT",
+      details: "Hard to digest and may cause acidity."
+    },
+    junkfood: {
+      label: "Junk Food 🍔",
+      status: "LIMIT",
+      details: "Low nutrition. Avoid frequent consumption."
+    },
+    salt: {
+      label: "Salt 🧂",
+      status: "LIMIT",
+      details: "Excess may cause swelling."
+    },
+    sugar: {
+      label: "Sugar 🍬",
+      status: "LIMIT",
+      details: "Increases gestational diabetes risk."
+    },
 
+    // 🔴 AVOID FOODS
+    papaya: {
+      label: "Papaya ❌",
+      status: "AVOID",
+      details: "May trigger uterine contractions."
+    },
+    pineapple: {
+      label: "Pineapple ❌",
+      status: "AVOID",
+      details: "Contains bromelain. Not safe in pregnancy."
+    },
+    rawegg: {
+      label: "Raw Egg ❌",
+      status: "AVOID",
+      details: "Risk of salmonella infection."
+    },
+    rawfish: {
+      label: "Raw Fish ❌",
+      status: "AVOID",
+      details: "High infection risk."
+    },
+    rawmeat: {
+      label: "Raw Meat ❌",
+      status: "AVOID",
+      details: "May contain harmful bacteria."
+    },
+    alcohol: {
+      label: "Alcohol 🍺❌",
+      status: "AVOID",
+      details: "Harms baby brain development."
+    },
+    smoking: {
+      label: "Smoking 🚬❌",
+      status: "AVOID",
+      details: "High risk of miscarriage and low birth weight."
+    },
+    energydrink: {
+      label: "Energy Drink ❌",
+      status: "AVOID",
+      details: "Very high caffeine and chemicals."
+    },
+    unpasteurizedmilk: {
+      label: "Unpasteurized Milk ❌",
+      status: "AVOID",
+      details: "Listeria infection risk."
+    },
+    softcheese: {
+      label: "Soft Cheese ❌",
+      status: "AVOID",
+      details: "May contain harmful bacteria."
+    },
+    streetfood: {
+      label: "Street Food ❌",
+      status: "AVOID",
+      details: "Poor hygiene. Infection risk."
+    }
+  },
+
+  // Auto-generated lists (kept empty intentionally)
+  SAFE_FOODS: [],
+  AVOID_FOODS: [],
+  LIMIT_FOODS: [],
+
+  // 🖼️ Baby growth images
   BABY_IMAGES: {
     11: {
       size: "Fig 🫐",
@@ -147,18 +277,21 @@ module.exports = {
     }
   },
 
+  // 🌸 Trimester images
   TRIMESTER_IMAGES: {
     1: "https://raw.githubusercontent.com/ivanstanley143/pregnancy-wa-bot/main/images/file_00000000a9c47209958c868a7d4aaa1e.png",
     2: "https://raw.githubusercontent.com/ivanstanley143/pregnancy-wa-bot/main/images/file_00000000fc48720685063f2cf441d60a.png",
     3: "https://raw.githubusercontent.com/ivanstanley143/pregnancy-wa-bot/main/images/file_0000000013c0720681789ce45f4f039f.png"
   },
 
+  // 🤲 Weekly duas
   WEEKLY_DUA: {
-    12: "🤲 Rabbi habli min ladunka dhurriyyatan tayyibah / رَبِّ هَبْ لِي مِنْ لَدُنْكَ ذُرِّيَّةً طَيِّبَةً إِنَّكَ سَمِيعُ الدُّعَاءِ",
-    13: "🤲 Rabbi yassir wala tu’assir wa tammim bil-khayr / رَبِّ يَسِّرْ وَلاَ تُعَسِّرْ وَتَمِّمْ بِالْخَيْرِ",
-    14: "🤲 Rabbi zidni sihhat wa quwwah / رَبِّ زِدْنِي صِحَّةً وَقُوَّةً"
+    12: "🤲 Rabbi habli min ladunka dhurriyyatan tayyibah",
+    13: "🤲 Rabbi yassir wala tu’assir wa tammim bil-khayr",
+    14: "🤲 Rabbi zidni sihhat wa quwwah"
   },
 
+  // 📅 Appointments
   APPOINTMENTS: [
     { date: "2026-01-10", time: "10:00", note: "Doctor appointment" }
   ]
