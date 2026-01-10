@@ -9,6 +9,24 @@ const readline = require("readline");
 
 let sock;
 let isConnecting = false;
+let pairingDone = false; // ⭐ IMPORTANT
+
+async function askPhoneNumber() {
+  return new Promise((resolve) => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    rl.question(
+      "📱 Enter WhatsApp number with country code (eg 9190xxxxxxx): ",
+      (number) => {
+        rl.close();
+        resolve(number.trim());
+      }
+    );
+  });
+}
 
 async function connectToWhatsApp() {
   if (isConnecting) return sock;
@@ -45,40 +63,31 @@ async function connectToWhatsApp() {
     }
   });
 
-  // 🔐 FIRST-TIME PAIRING ONLY
-  if (!state.creds.registered) {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
+  // 🔐 ASK PAIRING CODE ONCE ONLY
+  if (!state.creds.registered && !pairingDone) {
+    pairingDone = true;
 
-    rl.question(
-      "📱 Enter WhatsApp number with country code (eg 9190xxxxxx): ",
-      async (number) => {
-        const code = await sock.requestPairingCode(number.trim());
-        console.log("🔐 Pairing Code:", code);
-        console.log("👉 WhatsApp → Linked Devices → Link a device → Enter code");
-        rl.close();
-      }
-    );
+    const number = await askPhoneNumber();
+    const code = await sock.requestPairingCode(number);
+
+    console.log("\n🔐 PAIRING CODE:", code);
+    console.log("👉 WhatsApp → Linked Devices → Link a device → Enter code\n");
   }
 
   isConnecting = false;
   return sock;
 }
 
-// ✅ SEND TEXT MESSAGE
+// ✅ SEND TEXT
 async function sendTextMessage(number, text) {
   if (!sock) throw new Error("WhatsApp not connected");
-  const jid = `${number}@s.whatsapp.net`;
-  await sock.sendMessage(jid, { text });
+  await sock.sendMessage(`${number}@s.whatsapp.net`, { text });
 }
 
-// ✅ SEND IMAGE MESSAGE
+// ✅ SEND IMAGE
 async function sendImageMessage(number, imageUrl, caption) {
   if (!sock) throw new Error("WhatsApp not connected");
-  const jid = `${number}@s.whatsapp.net`;
-  await sock.sendMessage(jid, {
+  await sock.sendMessage(`${number}@s.whatsapp.net`, {
     image: { url: imageUrl },
     caption
   });
