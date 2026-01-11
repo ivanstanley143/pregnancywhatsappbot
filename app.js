@@ -60,36 +60,48 @@ app.post("/webhook", async (req, res) => {
 
     res.sendStatus(200);
   } catch (err) {
-    console.error("Webhook error:", err.message);
+    console.error("Webhook error:", err);
     res.sendStatus(200);
   }
 });
 
 /* =========================
-   START SERVER + CRON
+   START EXPRESS SERVER FIRST
+   (CRITICAL FIX)
 ========================= */
+
+const PORT = 3000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("🚀 Express is now listening on port", PORT);
+});
+
+/* =========================
+   BACKGROUND JOBS & DB
+========================= */
+
 (async () => {
-  await connectDB();
+  try {
+    await connectDB();
+    await seedDailyReminders();
 
-  // 🌱 Seed daily reminders once on boot
-  await seedDailyReminders();
+    // ⏰ Run every minute
+    setInterval(processDailyReminders, 60 * 1000);
+    setInterval(processAppointmentReminders, 60 * 1000);
 
-  // ⏰ Run every minute
-  setInterval(processDailyReminders, 60 * 1000);
-  setInterval(processAppointmentReminders, 60 * 1000);
+    // 📅 Weekly & scheduled jobs
+    cron.schedule("0 9 * * 1", sendWeeklyUpdate);         // Monday 9am
+    cron.schedule("0 10 * * *", processBabyGrowth);      // Daily 10am
+    cron.schedule("0 11 * * *", processTrimesterChange); // Daily 11am
+    cron.schedule("0 9 * * 5", sendWeeklyDua);           // Friday 9am
 
-  // 📅 Weekly & scheduled jobs
-  cron.schedule("0 9 * * 1", sendWeeklyUpdate);        // Monday 9am
-  cron.schedule("0 10 * * *", processBabyGrowth);     // Daily 10am
-  cron.schedule("0 11 * * *", processTrimesterChange); // Daily 11am
-  cron.schedule("0 9 * * 5", sendWeeklyDua);          // Friday 9am
+    // Daily dua
+    if (process.env.DAILY_DUA_TIME) {
+      const [duaHour, duaMinute] = process.env.DAILY_DUA_TIME.split(":");
+      cron.schedule(`${duaMinute} ${duaHour} * * *`, sendDailyDua);
+    }
 
-  // ✅ FIXED DAILY DUA TIME
-  const [duaHour, duaMinute] = process.env.DAILY_DUA_TIME.split(":");
-  cron.schedule(`${duaMinute} ${duaHour} * * *`, sendDailyDua);
-
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`🚀 Pregnancy WhatsApp Bot running on port ${PORT}`);
-  });
+  } catch (err) {
+    console.error("Startup error:", err);
+  }
 })();
