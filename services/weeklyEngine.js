@@ -1,18 +1,20 @@
-const utils = require("../utils");
+const { sendTemplate } = require("../whatsappCloud");
 const data = require("../data");
-const { sendTextMessage } = require("../whatsappCloud");
+const utils = require("../utils");
 
-async function sendWeeklyUpdate() {
+async function sendWeekUpdate() {
   const week = utils.getPregnancyWeek();
-  const trimester = utils.getTrimester(week);
+  const baby = data.BABY_IMAGES[week];
 
-  const msg = utils.format(
-    `🤰 Week ${week}\nTrimester ${trimester}`,
-    `🤰 ${week} ആഴ്ച\nട്രൈമെസ്റ്റർ ${trimester}`
-  );
-
-  await sendTextMessage(data.USER, msg);
-  await sendTextMessage(data.HUSBAND, msg);
+  await sendTemplate(data.USER, "pregnancy_week_update", [
+    {
+      type: "body",
+      parameters: [
+        { type: "text", text: String(week) },
+        { type: "text", text: baby.size }
+      ]
+    }
+  ]);
 }
 
-module.exports = { sendWeeklyUpdate };
+module.exports = { sendWeekUpdate };
