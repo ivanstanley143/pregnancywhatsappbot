@@ -3,7 +3,7 @@ const axios = require("axios");
 const TOKEN = process.env.META_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 
-const URL = `https://graph.facebook.com/v24.0/${PHONE_NUMBER_ID}/messages`;
+const URL = `https://graph.facebook.com/v22.0/${PHONE_NUMBER_ID}/messages`;
 
 async function sendTemplate(to, name, components = []) {
   await axios.post(
@@ -28,3 +28,4 @@ async function sendTemplate(to, name, components = []) {
 }
 
 module.exports = { sendTemplate };
+
