@@ -12,7 +12,7 @@ async function handleAppointmentCommand(text) {
     data: { note: p.slice(3).join(" ") }
   });
 
-  return "✅ Appointment added\nFollow Ziyadka's Advice 🌸";
+  return "✅ Appointment addedn\n- Follow Ziyadka's Advice 🌸";
 }
 
 module.exports = { handleAppointmentCommand };

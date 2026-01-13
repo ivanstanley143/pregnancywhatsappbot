@@ -2,7 +2,7 @@ module.exports = {
   // 👩 Mother details
   NAME: "Murshida Sulthana",
   TIMEZONE: "Asia/Kolkata",
-  FOOTER: "Follow Ziyadka’s Advice",
+  FOOTER: "- Follow Ziyadka’s Advice",
   
   DOB: "1993-06-24",
   LMP: "2025-10-18",
@@ -81,16 +81,16 @@ module.exports = {
   // 🖼️ Baby growth images
   BABY_IMAGES: {
     11: { size: "Fig 🫐", image: "https://raw.githubusercontent.com/ivanstanley143/pregnancy-wa-bot/main/images/file_00000000d12872079d38e6877ebf8d82.png" },
-    12: { size: "Lime 🍋", image: "https://raw.githubusercontent.com/ivanstanley143/pregnancy-wa-bot/main/images/file_000000002f447207bffe5ab6c0f843fc.png" },
+    12: { size: "Lime 🍋", image: "https://res.cloudinary.com/drcqtmobe/image/upload/v1767795308/file_0000000075ec72069b52c6d13eb158cd_tzyhn9.png" },
     13: { size: "Peach 🍑", image: "https://res.cloudinary.com/drcqtmobe/image/upload/v1767795308/file_0000000075ec72069b52c6d13eb158cd_tzyhn9.png" },
     14: { size: "Lemon 🍋", image: "https://res.cloudinary.com/drcqtmobe/image/upload/v1767795301/file_00000000ae207206a91304441fc049cc_pwlqay.png" },
     15: { size: "Apple 🍎", image: "https://res.cloudinary.com/drcqtmobe/image/upload/v1767795302/file_00000000a2487206b0277bcf6ef2757e_pevfay.png" }
   },
 
   TRIMESTER_IMAGES: {
-    1: "https://raw.githubusercontent.com/ivanstanley143/pregnancy-wa-bot/main/images/file_00000000a9c47209958c868a7d4aaa1e.png",
-    2: "https://raw.githubusercontent.com/ivanstanley143/pregnancy-wa-bot/main/images/file_00000000fc48720685063f2cf441d60a.png",
-    3: "https://raw.githubusercontent.com/ivanstanley143/pregnancy-wa-bot/main/images/file_0000000013c0720681789ce45f4f039f.png"
+    1: "https://res.cloudinary.com/drcqtmobe/image/upload/v1767795301/file_00000000a9c47209958c868a7d4aaa1e_pl4p3h.png",
+    2: "https://res.cloudinary.com/drcqtmobe/image/upload/v1767795305/file_00000000fc48720685063f2cf441d60a_uisr2b.png",
+    3: "https://res.cloudinary.com/drcqtmobe/image/upload/v1767795304/file_0000000013c0720681789ce45f4f039f_n32kqs.png"
   },
 
   WEEKLY_DUA: {

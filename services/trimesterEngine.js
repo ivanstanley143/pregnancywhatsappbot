@@ -13,8 +13,15 @@ async function processTrimesterChange() {
     `🌸 ട്രൈമെസ്റ്റർ ${trimester} ആരംഭിച്ചു`
   );
 
-  await sendImageMessage(data.USER, data.TRIMESTER_IMAGES[trimester], caption);
-  await sendImageMessage(data.HUSBAND, data.TRIMESTER_IMAGES[trimester], caption);
+console.log("TRIMESTER IMAGE URL:", data.TRIMESTER_IMAGES[trimester]);
+console.log("TRIMESTER CAPTION:", caption);
+
+await sendImageMessage(data.USER, data.TRIMESTER_IMAGES[trimester], caption);
+
+console.log("TRIMESTER IMAGE URL (HUSBAND):", data.TRIMESTER_IMAGES[trimester]);
+console.log("TRIMESTER CAPTION (HUSBAND):", caption);
+
+await sendImageMessage(data.HUSBAND, data.TRIMESTER_IMAGES[trimester], caption);
 
   await Reminder.create({ type: "trimester", data: { trimester }, sent: true });
 }

@@ -21,7 +21,7 @@ function getTrimester(week) {
 }
 
 // 📌 Footer (always shown)
-const FOOTER = `\n\n${data.DISCLAIMER}`;
+const FOOTER = `\n\n${data.FOOTER}`;
 
 module.exports = async (text) => {
   const msg = text.toLowerCase().trim();
@@ -44,7 +44,7 @@ module.exports = async (text) => {
       `Assalamu Alaikkum 🌸\n\n` +
       `🤲 Dua for Week ${week}\n\n` +
       dua +
-      FOOTER
+      "\n\n" + data.FOOTER
     );
   }
 
@@ -59,12 +59,12 @@ module.exports = async (text) => {
   ) {
     const baby = data.BABY_IMAGES[week];
 
-    if (!baby) {
+    if (!baby || !baby.image) {
       return (
         `Hi ${data.NAME} ❤️🤰🏻\n` +
         `Assalamu Alaikkum 🌸\n\n` +
         `🤰 Pregnancy Week ${week}\n\nDetails will be available soon.` +
-        FOOTER
+        "\n\n" + data.FOOTER
       );
     }
 
@@ -78,7 +78,7 @@ module.exports = async (text) => {
         `Baby size: ${baby.size}\n\n` +
         `🤰 ${week} ആഴ്ച\n` +
         `കുഞ്ഞിന്റെ വലുപ്പം: ${baby.size}` +
-        FOOTER
+        "\n\n" + data.FOOTER
     };
   }
 
@@ -86,9 +86,12 @@ module.exports = async (text) => {
      🌸 TRIMESTER
   ========================== */
   if (msg.includes("trimester") || msg.includes("ത്രൈമാസം")) {
+    const img = data.TRIMESTER_IMAGES[trimester];
+
     return {
       type: "image",
-      image: data.TRIMESTER_IMAGES[trimester],
+      image: img,
+      image: data.TRIMESTER_IMAGES[trimester]?.image,
       caption:
         `Hi ${data.NAME} ❤️🤰🏻\n` +
         `Assalamu Alaikkum 🌸\n\n` +
@@ -98,7 +101,7 @@ module.exports = async (text) => {
           : trimester === 2
           ? "Second Trimester / രണ്ടാം ത്രൈമാസം"
           : "Third Trimester / മൂന്നാം ത്രൈമാസം") +
-        FOOTER
+        "\n\n" + data.FOOTER
     };
   }
 
@@ -111,7 +114,7 @@ module.exports = async (text) => {
         `Hi ${data.NAME} ❤️🤰🏻\n` +
         `Assalamu Alaikkum 🌸\n\n` +
         `📅 No upcoming appointments.` +
-        FOOTER
+        "\n\n" + data.FOOTER
       );
     }
 
@@ -127,7 +130,7 @@ module.exports = async (text) => {
         `⏰ ${a.time}\n\n`;
     }
 
-    return reply.trim() + FOOTER;
+    return reply.trim() + "\n\n" + data.FOOTER;
   }
 
   /* ==========================
@@ -144,7 +147,7 @@ module.exports = async (text) => {
       `Assalamu Alaikkum 🌸\n\n` +
       `🥗 Pregnancy Safe Foods\n\n` +
       list +
-      FOOTER
+      data.FOOTER
     );
   }
 
@@ -159,7 +162,7 @@ module.exports = async (text) => {
       `Assalamu Alaikkum 🌸\n\n` +
       `🚫 Foods to Avoid During Pregnancy\n\n` +
       list +
-      FOOTER
+      data.FOOTER
     );
   }
 
@@ -174,7 +177,7 @@ module.exports = async (text) => {
       `Assalamu Alaikkum 🌸\n\n` +
       `⚠️ Foods to Limit During Pregnancy\n\n` +
       list +
-      FOOTER
+      data.FOOTER
     );
   }
 
@@ -196,7 +199,7 @@ module.exports = async (text) => {
       `${food.label}\n\n` +
       `${statusEmoji}\n` +
       `${food.details}` +
-      FOOTER
+      data.FOOTER
     );
   }
 
