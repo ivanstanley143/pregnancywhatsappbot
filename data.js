@@ -26,7 +26,7 @@ module.exports = {
 
   WEEKLY_DUA: {
     11: "Rabbi zidni ilman wa salihan",
-    12: "Rabbi habli min ladunka dhurriyyatan tayyibah",
+    12: "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ Rabbana hab lana min azwajina wa dhurriyyatina qurrata a’yunin",
     13: "Rabbi yassir wala tu’assir",
     14: "Allahumma ihfaz waladana",
     15: "Rabbi tammim bil khair"
