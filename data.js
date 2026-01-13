@@ -29,10 +29,10 @@ module.exports = {
   // 🤲 Weekly duas
   WEEKLY_DUA: {
     11: "رَبِّ زِدْنِي عِلْمًا – Rabbi zidni ilma",
-    12: "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ – Rabbana hab lana min azwajina wa dhurriyyatina qurrata a’yunin",
-    13: "رَبِّي يَسِّرْ وَلَا تُعَسِّرْ – Rabbi yassir wala tu’assir",
-    14: "اللَّهُمَّ احْفَظْ وَلَدَنَا – Allahumma ihfaz waladana",
-    15: "رَبِّي تَمِّمْ بِالْخَيْرِ – Rabbi tammim bil khair"
+    12: "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ Rabbana hab lana min azwajina wa dhurriyyatina qurrata a’yunin",
+    13: "رَبِّي يَسِّرْ وَلَا تُعَسِّرْ Rabbi yassir wala tu’assir",
+    14: "اللَّهُمَّ احْفَظْ وَلَدَنَا Allahumma ihfaz waladana",
+    15: "رَبِّي تَمِّمْ بِالْخَيْرِ Rabbi tammim bil khair"
   },
 
   // 🍎 Food safety database
