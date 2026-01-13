@@ -3,13 +3,12 @@ const axios = require("axios");
 const TOKEN = process.env.META_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 
-const URL = `https://graph.facebook.com/v22.0/${PHONE_NUMBER_ID}/messages`;
+const URL = `https://graph.facebook.com/v24.0/${PHONE_NUMBER_ID}/messages`;
 
-function cleanText(text) {
+function clean(text) {
   return String(text)
-    .replace(/\n/g, " ")
-    .replace(/\t/g, " ")
-    .replace(/\s{2,}/g, " ")
+    .replace(/\n+/g, " ")        // remove newlines
+    .replace(/\s{2,}/g, " ")     // no double spaces
     .trim();
 }
 
@@ -22,17 +21,15 @@ async function sendTemplate(to, name, params = []) {
       template: {
         name,
         language: { code: "en" },
-        components: params.length
-          ? [
-              {
-                type: "body",
-                parameters: params.map(p => ({
-                  type: "text",
-                  text: cleanText(p)
-                }))
-              }
-            ]
-          : []
+        components: [
+          {
+            type: "body",
+            parameters: params.map(p => ({
+              type: "text",
+              text: clean(p)
+            }))
+          }
+        ]
       }
     };
 
@@ -43,12 +40,12 @@ async function sendTemplate(to, name, params = []) {
       }
     });
 
-    console.log(`✅ Sent template: ${name} to ${to}`);
+    console.log(`✅ Sent template ${name} to ${to}`);
   } catch (err) {
     console.error("❌ WhatsApp send failed");
     console.error("Template:", name);
     console.error("Phone:", to);
-    console.error("Meta data:", err.response?.data || err.message);
+    console.error("Meta:", err.response?.data || err.message);
     throw err;
   }
 }
