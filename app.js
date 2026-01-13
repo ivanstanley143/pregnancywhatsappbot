@@ -4,7 +4,7 @@ const cron = require("node-cron");
 
 const connectDB = require("./db");
 const logic = require("./logic");
-const { sendTextMessage, sendImageMessage } = require("./whatsappCloud");
+const { sendTemplate } = require("./whatsappCloud");
 
 // Engines
 const { seedDailyReminders } = require("./services/dailyReminderSeeder");
@@ -52,10 +52,11 @@ app.post("/webhook", async (req, res) => {
     const reply = await logic(text);
     if (!reply) return res.sendStatus(200);
 
+    // Use Meta templates for all replies
     if (typeof reply === "string") {
-      await sendTextMessage(from, reply);
-    } else if (reply.type === "image") {
-      await sendImageMessage(from, reply.image, reply.caption);
+      await sendTemplate(from, "pregnancy_dua", [
+        reply
+      ]);
     }
 
     res.sendStatus(200);
@@ -83,7 +84,7 @@ app.post("/webhook", async (req, res) => {
     await processAppointmentReminders();
   }, 60 * 1000);
 
-  // 📅 Weekly & scheduled jobs (wrapped correctly)
+  // 📅 Weekly & scheduled jobs
   cron.schedule("0 9 * * 1", async () => {
     await sendWeeklyUpdate();          // Monday 9am
   });
