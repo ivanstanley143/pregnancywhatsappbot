@@ -1,16 +1,16 @@
 require("dotenv").config();
 const express = require("express");
-const cron = require("node-cron");
 const connectDB = require("./db");
 
 const { sendTemplate } = require("./whatsappCloud");
 const logic = require("./logic");
 
-// background engines
+// background engines (auto running)
 require("./services/dailyEngine");
 require("./services/duaEngine");
 require("./services/weeklyEngine");
 require("./services/trimesterEngine");
+require("./services/appointmentEngine");
 
 const app = express();
 app.use(express.json());
@@ -19,6 +19,21 @@ connectDB();
 
 app.get("/", (req, res) => {
   res.send("Pregnancy WhatsApp Bot Running");
+});
+
+/* ================================
+   META WEBHOOK VERIFICATION
+================================ */
+app.get("/webhook", (req, res) => {
+  const mode = req.query["hub.mode"];
+  const token = req.query["hub.verify_token"];
+  const challenge = req.query["hub.challenge"];
+
+  if (mode === "subscribe" && token === process.env.VERIFY_TOKEN) {
+    console.log("✅ Webhook verified");
+    return res.status(200).send(challenge);
+  }
+  return res.sendStatus(403);
 });
 
 /* ================================
@@ -35,13 +50,12 @@ app.post("/webhook", async (req, res) => {
     const from = message.from;
     const text = message.text.body.trim();
 
-    // run command router (dua, week, foods, etc)
     const reply = await logic(text);
     if (!reply) return res.sendStatus(200);
 
-    // send as WhatsApp template
+    // All command replies go via pregnancy_dua template
     await sendTemplate(from, "pregnancy_dua", [
-      "Murshida Sulthana",
+      process.env.NAME || "Murshida Sulthana",
       reply
     ]);
 
@@ -53,6 +67,6 @@ app.post("/webhook", async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log("🚀 Pregnancy Bot running on port", PORT);
 });
