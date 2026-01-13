@@ -52,9 +52,10 @@ app.post("/webhook", async (req, res) => {
     const reply = await logic(text);
     if (!reply) return res.sendStatus(200);
 
-    // Use Meta templates for all replies
+    // pregnancy_dua template requires TWO parameters
     if (typeof reply === "string") {
       await sendTemplate(from, "pregnancy_dua", [
+        "Murshida Sulthana",
         reply
       ]);
     }
