@@ -5,33 +5,37 @@ module.exports = {
   FOOTER: "Follow Ziyadka’s Advice",
   TIMEZONE: "Asia/Kolkata",
 
+  // 💧 Water reminder times
   WATER_TIMES: ["07:30","09:30","11:30","13:30","15:30","17:30","19:30","21:00"],
 
+  // 🍽️ Meals — SINGLE bilingual variable
   MEALS: {
-    "09:00": ["Breakfast 🍽️", "പ്രഭാതഭക്ഷണം"],
-    "11:00": ["Snack 🍎", "ഇടക്കാല ലഘുഭക്ഷണം"],
-    "14:00": ["Lunch 🥗", "ഉച്ചഭക്ഷണം"],
-    "17:00": ["Evening Snack ☕", "സായാഹ്ന ലഘുഭക്ഷണം"],
-    "19:30": ["Dinner 🍽️", "രാത്രി ഭക്ഷണം"],
-    "21:30": ["Light Food 🥛", "ലഘുഭക്ഷണം"]
+    "09:00": "പ്രഭാതഭക്ഷണം – മുട്ട & ബ്രെഡ് (Breakfast – Egg & Bread)",
+    "11:00": "ഇടക്കാല ലഘുഭക്ഷണം – പഴങ്ങൾ (Snack – Fruits)",
+    "14:00": "ഉച്ചഭക്ഷണം – ചോറ് & കറി (Lunch – Rice & Curry)",
+    "17:00": "സായാഹ്ന ലഘുഭക്ഷണം – ചായ & ബിസ്കറ്റ് (Evening Snack – Tea & Biscuit)",
+    "19:30": "രാത്രി ഭക്ഷണം – ചപ്പാത്തി & പച്ചക്കറി (Dinner – Chapati & Vegetables)",
+    "21:30": "ലഘുഭക്ഷണം – പാൽ (Light Food – Milk)"
   },
 
+  // 👶 Baby size per week
   BABY_IMAGES: {
-    11: { size: "Fig 🫐" },
     12: { size: "Lime 🍋" },
     13: { size: "Peach 🍑" },
     14: { size: "Lemon 🍋" },
     15: { size: "Apple 🍎" }
   },
 
+  // 🤲 Weekly duas
   WEEKLY_DUA: {
-    11: "Rabbi zidni ilman wa salihan",
-    12: "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ Rabbana hab lana min azwajina wa dhurriyyatina qurrata a’yunin",
-    13: "Rabbi yassir wala tu’assir",
-    14: "Allahumma ihfaz waladana",
-    15: "Rabbi tammim bil khair"
+    11: "رَبِّ زِدْنِي عِلْمًا – Rabbi zidni ilma",
+    12: "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ – Rabbana hab lana min azwajina wa dhurriyyatina qurrata a’yunin",
+    13: "رَبِّي يَسِّرْ وَلَا تُعَسِّرْ – Rabbi yassir wala tu’assir",
+    14: "اللَّهُمَّ احْفَظْ وَلَدَنَا – Allahumma ihfaz waladana",
+    15: "رَبِّي تَمِّمْ بِالْخَيْرِ – Rabbi tammim bil khair"
   },
 
+  // 🍎 Food safety database
   FOOD_DB: {
     apple: { label: "Apple 🍎", status: "SAFE", details: "Rich in fiber and vitamins" },
     banana: { label: "Banana 🍌", status: "SAFE", details: "Good for energy and nausea" },
