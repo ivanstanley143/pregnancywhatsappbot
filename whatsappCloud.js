@@ -13,7 +13,7 @@ async function sendTemplate(to, name, params = []) {
       type: "template",
       template: {
         name,
-        language: { code: "en_US" },
+        language: { code: "en" },
         components: params.length
           ? [
               {
@@ -46,3 +46,4 @@ async function sendTemplate(to, name, params = []) {
 }
 
 module.exports = { sendTemplate };
+
