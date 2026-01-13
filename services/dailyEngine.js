@@ -7,7 +7,7 @@ data.WATER_TIMES.forEach(time => {
   const [h,m] = time.split(":");
 
   cron.schedule(`${m} ${h} * * *`, () => {
-    sendTemplate(data.USER, "pregnancy_water_reminder", []);
+    sendTemplate(data.USER, "pregnancy_water_reminder_v1", []);
   });
 });
 
