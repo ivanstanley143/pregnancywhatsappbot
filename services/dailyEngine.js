@@ -17,7 +17,7 @@ Object.keys(data.MEALS).forEach(time => {
   const meal = data.MEALS[time];
 
   cron.schedule(`${m} ${h} * * *`, () => {
-    sendTemplate(data.USER, "pregnancy_meal", [
+    sendTemplate(data.USER, "pregnancy_meal_reminder", [
       meal[0],
       meal[1]
     ]);
