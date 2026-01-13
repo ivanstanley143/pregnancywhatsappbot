@@ -8,7 +8,7 @@ async function processDailyReminders() {
   });
 
   for (const r of list) {
-    await sendTemplate(r.user, "water_reminder");
+    await sendTemplate(r.user, "pregnancy_water_reminder");
     r.sent = true;
     await r.save();
   }
