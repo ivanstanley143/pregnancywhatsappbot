@@ -30,7 +30,15 @@ async function sendTemplate(to, name, components = []) {
     console.error("❌ WhatsApp send failed");
     console.error("Template:", name);
     console.error("Phone:", to);
-    console.error("Meta error:", err.response?.data || err.message);
+
+    if (err.response) {
+      console.error("Meta status:", err.response.status);
+      console.error("Meta headers:", JSON.stringify(err.response.headers, null, 2));
+      console.error("Meta data:", JSON.stringify(err.response.data, null, 2));
+    } else {
+      console.error("Error:", err.message);
+    }
+
     throw err;
   }
 }
