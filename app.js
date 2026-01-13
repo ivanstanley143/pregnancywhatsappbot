@@ -74,19 +74,38 @@ app.post("/webhook", async (req, res) => {
   // 🌱 Seed daily reminders once on boot
   await seedDailyReminders();
 
-  // ⏰ Run every minute
-  setInterval(processDailyReminders, 60 * 1000);
-  setInterval(processAppointmentReminders, 60 * 1000);
+  // ⏰ Run engines every minute
+  setInterval(async () => {
+    await processDailyReminders();
+  }, 60 * 1000);
 
-  // 📅 Weekly & scheduled jobs
-  cron.schedule("0 9 * * 1", sendWeeklyUpdate);        // Monday 9am
-  cron.schedule("0 10 * * *", processBabyGrowth);     // Daily 10am
-  cron.schedule("0 11 * * *", processTrimesterChange); // Daily 11am
-  cron.schedule("0 9 * * 5", sendWeeklyDua);          // Friday 9am
+  setInterval(async () => {
+    await processAppointmentReminders();
+  }, 60 * 1000);
 
-  // ✅ FIXED DAILY DUA TIME
+  // 📅 Weekly & scheduled jobs (wrapped correctly)
+  cron.schedule("0 9 * * 1", async () => {
+    await sendWeeklyUpdate();          // Monday 9am
+  });
+
+  cron.schedule("0 10 * * *", async () => {
+    await processBabyGrowth();         // Daily 10am
+  });
+
+  cron.schedule("0 11 * * *", async () => {
+    await processTrimesterChange();    // Daily 11am
+  });
+
+  cron.schedule("0 9 * * 5", async () => {
+    await sendWeeklyDua();             // Friday 9am
+  });
+
+  // ✅ Daily Dua at configured time
   const [duaHour, duaMinute] = process.env.DAILY_DUA_TIME.split(":");
-  cron.schedule(`${duaMinute} ${duaHour} * * *`, sendDailyDua);
+
+  cron.schedule(`${duaMinute} ${duaHour} * * *`, async () => {
+    await sendDailyDua();
+  });
 
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
