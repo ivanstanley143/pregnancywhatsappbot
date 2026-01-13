@@ -1,15 +1,12 @@
 module.exports = {
   // 👩 Mother details
   NAME: "Murshida Sulthana",
+  USER: "918921285711",     // Single WhatsApp user
   TIMEZONE: "Asia/Kolkata",
-  FOOTER: "- Follow Ziyadka’s Advice",
-  
+  FOOTER: "Follow Ziyadka’s Advice",
+
   DOB: "1993-06-24",
   LMP: "2025-10-18",
-
-  // 📱 WhatsApp numbers (without +)
-  USER: "919074616114",
-  HUSBAND: "918921285711",
 
   // ⏰ Daily reminder times
   MEAL_TIMES: ["09:00","11:00","14:00","17:00","19:30","21:30"],
@@ -80,25 +77,27 @@ module.exports = {
 
   // 🖼️ Baby growth images
   BABY_IMAGES: {
-    11: { size: "Fig 🫐", image: "https://raw.githubusercontent.com/ivanstanley143/pregnancy-wa-bot/main/images/file_00000000d12872079d38e6877ebf8d82.png" },
     12: { size: "Lime 🍋", image: "https://res.cloudinary.com/drcqtmobe/image/upload/v1767795308/file_0000000075ec72069b52c6d13eb158cd_tzyhn9.png" },
     13: { size: "Peach 🍑", image: "https://res.cloudinary.com/drcqtmobe/image/upload/v1767795308/file_0000000075ec72069b52c6d13eb158cd_tzyhn9.png" },
     14: { size: "Lemon 🍋", image: "https://res.cloudinary.com/drcqtmobe/image/upload/v1767795301/file_00000000ae207206a91304441fc049cc_pwlqay.png" },
     15: { size: "Apple 🍎", image: "https://res.cloudinary.com/drcqtmobe/image/upload/v1767795302/file_00000000a2487206b0277bcf6ef2757e_pevfay.png" }
   },
 
+  // 🌸 Trimester images
   TRIMESTER_IMAGES: {
     1: "https://res.cloudinary.com/drcqtmobe/image/upload/v1767795301/file_00000000a9c47209958c868a7d4aaa1e_pl4p3h.png",
     2: "https://res.cloudinary.com/drcqtmobe/image/upload/v1767795305/file_00000000fc48720685063f2cf441d60a_uisr2b.png",
     3: "https://res.cloudinary.com/drcqtmobe/image/upload/v1767795304/file_0000000013c0720681789ce45f4f039f_n32kqs.png"
   },
 
+  // 🤲 Weekly Duas
   WEEKLY_DUA: {
     12: "🤲 Rabbi habli min ladunka dhurriyyatan tayyibah",
     13: "🤲 Rabbi yassir wala tu’assir wa tammim bil-khayr",
     14: "🤲 Rabbi zidni sihhat wa quwwah"
   },
 
+  // 📅 Appointments
   APPOINTMENTS: [
     { date: "2026-01-12", time: "10:00", note: "Doctor appointment" }
   ]
