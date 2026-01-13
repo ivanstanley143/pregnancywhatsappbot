@@ -2,32 +2,30 @@ const Reminder = require("../models/Reminder");
 const { sendTemplate } = require("../whatsappCloud");
 
 async function processDailyReminders() {
-  const now = new Date();
-
   const list = await Reminder.find({
     sent: false,
-    scheduledAt: { $lte: now }
+    scheduledAt: { $lte: new Date() }
   });
 
   for (const r of list) {
-    try {
-      if (r.type === "water") {
-        await sendTemplate(r.user, "pregnancy_water_reminder");
-      }
-
-      if (r.type === "meal") {
-        await sendTemplate(r.user, "pregnancy_meal_reminder");
-      }
-
-      if (r.type === "dua") {
-        await sendTemplate(r.user, "pregnancy_dua");
-      }
-
-      r.sent = true;
-      await r.save();
-    } catch (err) {
-      console.error("❌ Send failed", err.response?.data || err.message);
+    if (r.type === "water") {
+      await sendTemplate(r.user, "pregnancy_water_reminder");
     }
+
+    if (r.type === "meal") {
+      await sendTemplate(r.user, "pregnancy_meal_reminder", [
+        {
+          type: "body",
+          parameters: [
+            { type: "text", text: r.data.title_en },
+            { type: "text", text: r.data.title_ml }
+          ]
+        }
+      ]);
+    }
+
+    r.sent = true;
+    await r.save();
   }
 }
 
