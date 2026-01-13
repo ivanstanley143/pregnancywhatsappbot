@@ -42,27 +42,23 @@ app.post("/webhook", async (req, res) => {
     const changes = entry?.changes?.[0];
     const message = changes?.value?.messages?.[0];
 
-    if (!message) return res.sendStatus(200);
+    if (!message || !message.text) return res.sendStatus(200);
 
     const from = message.from;
-    const text = message.text?.body;
-
-    if (!text) return res.sendStatus(200);
+    const text = message.text.body.trim();
 
     const reply = await logic(text);
     if (!reply) return res.sendStatus(200);
 
-    // pregnancy_dua template requires TWO parameters
-    if (typeof reply === "string") {
-      await sendTemplate(from, "pregnancy_dua", [
-        "Murshida Sulthana",
-        reply
-      ]);
-    }
+    // All text replies go through pregnancy_dua template
+    await sendTemplate(from, "pregnancy_dua", [
+      "Murshida Sulthana",
+      reply
+    ]);
 
     res.sendStatus(200);
   } catch (err) {
-    console.error("Webhook error:", err.message);
+    console.error("Webhook error:", err.response?.data || err.message);
     res.sendStatus(200);
   }
 });
@@ -73,41 +69,29 @@ app.post("/webhook", async (req, res) => {
 (async () => {
   await connectDB();
 
-  // 🌱 Seed daily reminders once on boot
+  console.log("🟢 DB connected");
+
+  // Seed reminders once on startup
   await seedDailyReminders();
 
-  // ⏰ Run engines every minute
-  setInterval(async () => {
-    await processDailyReminders();
-  }, 60 * 1000);
+  // Run reminder engines every minute
+  setInterval(() => {
+    processDailyReminders().catch(console.error);
+  }, 60000);
 
-  setInterval(async () => {
-    await processAppointmentReminders();
-  }, 60 * 1000);
+  setInterval(() => {
+    processAppointmentReminders().catch(console.error);
+  }, 60000);
 
-  // 📅 Weekly & scheduled jobs
-  cron.schedule("0 9 * * 1", async () => {
-    await sendWeeklyUpdate();          // Monday 9am
-  });
+  // Weekly & scheduled jobs
+  cron.schedule("0 9 * * 1", () => sendWeeklyUpdate().catch(console.error));     // Monday 9am
+  cron.schedule("0 10 * * *", () => processBabyGrowth().catch(console.error));  // Daily 10am
+  cron.schedule("0 11 * * *", () => processTrimesterChange().catch(console.error));
+  cron.schedule("0 9 * * 5", () => sendWeeklyDua().catch(console.error));        // Friday 9am
 
-  cron.schedule("0 10 * * *", async () => {
-    await processBabyGrowth();         // Daily 10am
-  });
-
-  cron.schedule("0 11 * * *", async () => {
-    await processTrimesterChange();    // Daily 11am
-  });
-
-  cron.schedule("0 9 * * 5", async () => {
-    await sendWeeklyDua();             // Friday 9am
-  });
-
-  // ✅ Daily Dua at configured time
+  // Daily Dua
   const [duaHour, duaMinute] = process.env.DAILY_DUA_TIME.split(":");
-
-  cron.schedule(`${duaMinute} ${duaHour} * * *`, async () => {
-    await sendDailyDua();
-  });
+  cron.schedule(`${duaMinute} ${duaHour} * * *`, () => sendDailyDua().catch(console.error));
 
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, "0.0.0.0", () => {
