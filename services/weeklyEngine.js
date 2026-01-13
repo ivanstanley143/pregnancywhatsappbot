@@ -1,63 +1,56 @@
-const { sendTemplate } = require("../whatsappCloud");
-const data = require("../data");
-const utils = require("../utils");
+const cron = require("node-cron");
 const Reminder = require("../models/Reminder");
+const data = require("../data");
+const { sendTemplate } = require("../whatsappCloud");
 
-async function sendWeeklyUpdate() {
-  const week = utils.getPregnancyWeek();
-
-  // Map week → Meta template
-  const templateMap = {
-    12: "pregnancy_week_12",
-    13: "pregnancy_week_13",
-    14: "pregnancy_week_14_v1",
-    15: "pregnancy_week_15"
-  };
-
-  const templateName = templateMap[week];
-  if (!templateName) return; // no template for this week
-
-  const baby = data.BABY_IMAGES[week];
-  if (!baby || !baby.image) return;
-
-  // prevent duplicate send
-  const alreadySent = await Reminder.findOne({
-    type: "weekly",
-    "data.week": week
-  });
-  if (alreadySent) return;
-
-  await sendTemplate(data.USER, templateName, [
-    {
-      type: "header",
-      parameters: [
-        {
-          type: "image",
-          image: {
-            link: baby.image
-          }
-        }
-      ]
-    },
-    {
-      type: "body",
-      parameters: [
-        { type: "text", text: data.NAME },        // {{1}}
-        { type: "text", text: baby.size },        // {{2}}
-        { type: "text", text: String(week) }      // {{3}}
-      ]
-    }
-  ]);
-
-  await Reminder.create({
-    user: data.USER,
-    type: "weekly",
-    data: { week },
-    sent: true,
-    sentAt: new Date()
-  });
-
-  console.log("✅ Weekly update sent for week", week);
+function getPregnancyWeek() {
+  const diff = (new Date() - new Date(data.LMP)) / (1000 * 60 * 60 * 24);
+  return Math.floor(diff / 7) + 1;
 }
 
-module.exports = { sendWeeklyUpdate };
+async function processWeeklyGrowth() {
+  try {
+    const week = getPregnancyWeek();
+    const baby = data.BABY_IMAGES[week];
+    if (!baby) return;
+
+    // Only weeks that exist in Meta
+    const templateMap = {
+      12: "pregnancy_week_12",
+      13: "pregnancy_week_13",
+      14: "pregnancy_week_14_v1",
+      15: "pregnancy_week_15"
+    };
+
+    const templateName = templateMap[week];
+    if (!templateName) return;
+
+    const exists = await Reminder.findOne({
+      user: data.USER,
+      type: "week",
+      "data.week": week
+    });
+    if (exists) return;
+
+    await sendTemplate(data.USER, templateName, [
+      data.NAME,          // {{1}}
+      baby.size,         // {{2}}
+      String(week)       // {{3}}
+    ]);
+
+    await Reminder.create({
+      user: data.USER,
+      type: "week",
+      data: { week },
+      sent: true
+    });
+
+    console.log("👶 Week", week, "growth sent");
+  } catch (err) {
+    console.error("Weekly Engine error:", err.message);
+  }
+}
+
+cron.schedule("0 10 * * *", processWeeklyGrowth);
+
+module.exports = { processWeeklyGrowth };
