@@ -1,44 +1,58 @@
 require("dotenv").config();
 const express = require("express");
-const logic = require("./logic");
-const data = require("./data");
+const cron = require("node-cron");
+const connectDB = require("./db");
+
 const { sendTemplate } = require("./whatsappCloud");
+const logic = require("./logic");
+
+// background engines
+require("./services/dailyEngine");
+require("./services/duaEngine");
+require("./services/weeklyEngine");
+require("./services/trimesterEngine");
 
 const app = express();
 app.use(express.json());
 
-// Webhook verify
-app.get("/webhook",(req,res)=>{
-  if(req.query["hub.verify_token"]===process.env.VERIFY_TOKEN){
-    return res.send(req.query["hub.challenge"]);
-  }
-  res.sendStatus(403);
+connectDB();
+
+app.get("/", (req, res) => {
+  res.send("Pregnancy WhatsApp Bot Running");
 });
 
-// Receive messages
-app.post("/webhook", async (req,res)=>{
-  const msg = req.body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
-  if(!msg?.text) return res.sendStatus(200);
+/* ================================
+   META WHATSAPP WEBHOOK
+================================ */
+app.post("/webhook", async (req, res) => {
+  try {
+    const entry = req.body.entry?.[0];
+    const changes = entry?.changes?.[0];
+    const message = changes?.value?.messages?.[0];
 
-  const reply = await logic(msg.text.body);
-  if(reply){
-    await sendTemplate(msg.from,"pregnancy_text",[reply]);
+    if (!message || !message.text) return res.sendStatus(200);
+
+    const from = message.from;
+    const text = message.text.body.trim();
+
+    // run command router (dua, week, foods, etc)
+    const reply = await logic(text);
+    if (!reply) return res.sendStatus(200);
+
+    // send as WhatsApp template
+    await sendTemplate(from, "pregnancy_dua", [
+      "Murshida Sulthana",
+      reply
+    ]);
+
+    res.sendStatus(200);
+  } catch (err) {
+    console.error("Webhook error:", err.response?.data || err.message);
+    res.sendStatus(200);
   }
-  res.sendStatus(200);
 });
 
-// ⏰ Timed reminders
-setInterval(()=>{
-  const now = new Date().toLocaleTimeString("en-GB",{timeZone:data.TIMEZONE,hour:"2-digit",minute:"2-digit"});
-
-  if(data.WATER_TIMES.includes(now)){
-    sendTemplate(data.USER,"pregnancy_water_reminder");
-  }
-
-  if(data.MEALS[now]){
-    sendTemplate(data.USER,"pregnancy_meal_reminder",data.MEALS[now]);
-  }
-
-},60000);
-
-app.listen(3000,()=>console.log("Bot running"));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log("🚀 Pregnancy Bot running on port", PORT);
+});
