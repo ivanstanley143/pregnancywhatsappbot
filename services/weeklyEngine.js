@@ -1,16 +1,60 @@
 const cron = require("node-cron");
-const { sendTemplate } = require("../whatsappCloud");
+const Reminder = require("../models/Reminder");
 const data = require("../data");
-const { getWeek } = require("../utils");
+const { sendTemplate } = require("../whatsappCloud");
 
-// Every Monday 9 AM
-cron.schedule("0 9 * * 1", () => {
-  const week = getWeek();
-  const baby = data.BABY_IMAGES[week];
-  if (!baby) return;
+/* ===============================
+   Pregnancy Week Calculator
+================================ */
+function getPregnancyWeek() {
+  const diff =
+    (new Date() - new Date(data.LMP)) / (1000 * 60 * 60 * 24);
+  return Math.floor(diff / 7) + 1;
+}
 
-  sendTemplate(data.USER, "pregnancy_week_update", [
-    String(week),
-    baby.size
-  ]);
-});
+/* ===============================
+   Send Weekly Baby Update
+================================ */
+async function sendWeeklyUpdate(to = data.USER) {
+  try {
+    const week = getPregnancyWeek();
+    const baby = data.BABY_IMAGES[week];
+    if (!baby) return;
+
+    const exists = await Reminder.findOne({
+      user: to,
+      type: "week",
+      "data.week": week
+    });
+    if (exists) return;
+
+    const templateName = `pregnancy_week_${week}`;
+
+    await sendTemplate(to, templateName, [
+      data.NAME,
+      baby.size,
+      String(week)
+    ]);
+
+    await Reminder.create({
+      user: to,
+      type: "week",
+      data: { week },
+      sent: true
+    });
+
+    console.log("📅 Week", week, "baby update sent");
+  } catch (err) {
+    console.error("Weekly Engine Error:", err.message);
+  }
+}
+
+/* ===============================
+   Run Every Morning 10AM
+================================ */
+cron.schedule("0 10 * * *", sendWeeklyUpdate);
+
+module.exports = {
+  getPregnancyWeek,
+  sendWeeklyUpdate
+};
