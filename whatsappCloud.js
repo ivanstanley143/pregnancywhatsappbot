@@ -5,7 +5,7 @@ const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 
 const URL = `https://graph.facebook.com/v22.0/${PHONE_NUMBER_ID}/messages`;
 
-async function sendTemplate(to, name, components = []) {
+async function sendTemplate(to, name, params = []) {
   try {
     const payload = {
       messaging_product: "whatsapp",
@@ -14,7 +14,17 @@ async function sendTemplate(to, name, components = []) {
       template: {
         name,
         language: { code: "en_US" },
-        components
+        components: params.length
+          ? [
+              {
+                type: "body",
+                parameters: params.map(p => ({
+                  type: "text",
+                  text: String(p)
+                }))
+              }
+            ]
+          : []
       }
     };
 
@@ -30,15 +40,7 @@ async function sendTemplate(to, name, components = []) {
     console.error("❌ WhatsApp send failed");
     console.error("Template:", name);
     console.error("Phone:", to);
-
-    if (err.response) {
-      console.error("Meta status:", err.response.status);
-      console.error("Meta headers:", JSON.stringify(err.response.headers, null, 2));
-      console.error("Meta data:", JSON.stringify(err.response.data, null, 2));
-    } else {
-      console.error("Error:", err.message);
-    }
-
+    console.error("Meta data:", err.response?.data || err.message);
     throw err;
   }
 }
