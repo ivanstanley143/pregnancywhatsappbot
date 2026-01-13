@@ -9,7 +9,7 @@ cron.schedule("0 8 * * *", () => {
   const img = data.TRIMESTER_IMAGES[trimester];
   if (!img) return;
 
-  sendTemplate(data.USER, "pregnancy_trimester", [
+  sendTemplate(data.USER, "pregnancy_trimester_update", [
     String(trimester)
   ]);
 });
