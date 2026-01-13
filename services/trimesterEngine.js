@@ -1,27 +1,20 @@
 const Reminder = require("../models/Reminder");
+const { sendTemplate } = require("../whatsappCloud");
 const data = require("../data");
 const utils = require("../utils");
-const { sendImageMessage } = require("../whatsappCloud");
 
 async function processTrimesterChange() {
   const trimester = utils.getTrimester(utils.getPregnancyWeek());
-  const sent = await Reminder.findOne({ type: "trimester", data: { trimester } });
+
+  const sent = await Reminder.findOne({ type: "trimester", "data.trimester": trimester });
   if (sent) return;
 
-  const caption = utils.format(
-    `🌸 Trimester ${trimester} started`,
-    `🌸 ട്രൈമെസ്റ്റർ ${trimester} ആരംഭിച്ചു`
-  );
-
-console.log("TRIMESTER IMAGE URL:", data.TRIMESTER_IMAGES[trimester]);
-console.log("TRIMESTER CAPTION:", caption);
-
-await sendImageMessage(data.USER, data.TRIMESTER_IMAGES[trimester], caption);
-
-console.log("TRIMESTER IMAGE URL (HUSBAND):", data.TRIMESTER_IMAGES[trimester]);
-console.log("TRIMESTER CAPTION (HUSBAND):", caption);
-
-await sendImageMessage(data.HUSBAND, data.TRIMESTER_IMAGES[trimester], caption);
+  await sendTemplate(data.USER, "pregnancy_trimester_update", [
+    {
+      type: "body",
+      parameters: [{ type: "text", text: String(trimester) }]
+    }
+  ]);
 
   await Reminder.create({ type: "trimester", data: { trimester }, sent: true });
 }
