@@ -3,42 +3,11 @@ const axios = require("axios");
 const TOKEN = process.env.META_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 
-async function sendTextMessage(to, text) {
-  return axios.post(
-    `https://graph.facebook.com/v19.0/${PHONE_NUMBER_ID}/messages`,
-    {
-      messaging_product: "whatsapp",
-      to,
-      type: "text",
-      text: { body: text }
-    },
-    {
-      headers: { Authorization: `Bearer ${TOKEN}` }
-    }
-  );
-}
+const URL = `https://graph.facebook.com/v24.0/${PHONE_NUMBER_ID}/messages`;
 
-async function sendImageMessage(to, imageUrl, caption) {
-  return axios.post(
-    `https://graph.facebook.com/v19.0/${PHONE_NUMBER_ID}/messages`,
-    {
-      messaging_product: "whatsapp",
-      to,
-      type: "image",
-      image: {
-        link: imageUrl,
-        caption
-      }
-    },
-    {
-      headers: { Authorization: `Bearer ${TOKEN}` }
-    }
-  );
-}
-
-async function sendTemplate(to, name, params = []) {
-  return axios.post(
-    `https://graph.facebook.com/v19.0/${PHONE_NUMBER_ID}/messages`,
+async function sendTemplate(to, name, components = []) {
+  await axios.post(
+    URL,
     {
       messaging_product: "whatsapp",
       to,
@@ -46,23 +15,16 @@ async function sendTemplate(to, name, params = []) {
       template: {
         name,
         language: { code: "en_US" },
-        components: [
-          {
-            type: "body",
-            parameters: params.map(p => ({ type: "text", text: p }))
-          }
-        ]
+        components
       }
     },
     {
-      headers: { Authorization: `Bearer ${TOKEN}` }
+      headers: {
+        Authorization: `Bearer ${TOKEN}`,
+        "Content-Type": "application/json"
+      }
     }
   );
 }
 
-module.exports = {
-  sendTextMessage,
-  sendImageMessage,
-  sendTemplate
-};
-
+module.exports = { sendTemplate };
