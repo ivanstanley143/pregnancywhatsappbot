@@ -7,7 +7,7 @@ const URL = `https://graph.facebook.com/v24.0/${PHONE_NUMBER_ID}/messages`;
 
 function clean(text) {
   return String(text)
-    .replace(/\n+/g, " ")        // remove newlines
+    .replace(/\r?\n/g, " ")      // remove all newlines
     .replace(/\s{2,}/g, " ")     // no double spaces
     .trim();
 }
@@ -40,7 +40,7 @@ async function sendTemplate(to, name, params = []) {
       }
     });
 
-    console.log(`✅ Sent template ${name} to ${to}`);
+    console.log(`✅ Sent ${name} to ${to}`);
   } catch (err) {
     console.error("❌ WhatsApp send failed");
     console.error("Template:", name);
