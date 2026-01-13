@@ -6,48 +6,46 @@ const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 const URL = `https://graph.facebook.com/v24.0/${PHONE_NUMBER_ID}/messages`;
 
 function clean(text) {
-  return String(text)
-    .replace(/\r?\n/g, " ")      // remove all newlines
-    .replace(/\s{2,}/g, " ")     // no double spaces
-    .trim();
+  return String(text).replace(/\r?\n/g, " ").replace(/\s+/g, " ").trim();
 }
 
-async function sendTemplate(to, name, params = []) {
-  try {
-    const payload = {
-      messaging_product: "whatsapp",
-      to,
-      type: "template",
-      template: {
-        name,
-        language: { code: "en" },
-        components: [
-          {
-            type: "body",
-            parameters: params.map(p => ({
-              type: "text",
-              text: clean(p)
-            }))
-          }
-        ]
-      }
-    };
+async function sendTemplate(to, name, body = [], image = null) {
+  const components = [];
 
-    await axios.post(URL, payload, {
-      headers: {
-        Authorization: `Bearer ${TOKEN}`,
-        "Content-Type": "application/json"
-      }
+  if (image) {
+    components.push({
+      type: "header",
+      parameters: [
+        { type: "image", image: { link: image } }
+      ]
     });
-
-    console.log(`✅ Sent ${name} to ${to}`);
-  } catch (err) {
-    console.error("❌ WhatsApp send failed");
-    console.error("Template:", name);
-    console.error("Phone:", to);
-    console.error("Meta:", err.response?.data || err.message);
-    throw err;
   }
+
+  if (body.length) {
+    components.push({
+      type: "body",
+      parameters: body.map(t => ({
+        type: "text",
+        text: clean(t)
+      }))
+    });
+  }
+
+  await axios.post(URL, {
+    messaging_product: "whatsapp",
+    to,
+    type: "template",
+    template: {
+      name,
+      language: { code: "en" },
+      components
+    }
+  }, {
+    headers: {
+      Authorization: `Bearer ${TOKEN}`,
+      "Content-Type": "application/json"
+    }
+  });
 }
 
 module.exports = { sendTemplate };
