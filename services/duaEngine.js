@@ -1,16 +1,33 @@
 const cron = require("node-cron");
 const { sendTemplate } = require("../whatsappCloud");
 const data = require("../data");
-const { getWeek } = require("../utils");
+const { getPregnancyWeek } = require("../utils");
 
-// Every day 9am
-cron.schedule("0 9 * * *", () => {
-  const week = getWeek();
+// ================================
+// DAILY DUA SENDER
+// ================================
+async function sendDailyDua() {
+  const week = getPregnancyWeek();
   const dua = data.WEEKLY_DUA[week];
   if (!dua) return;
 
-  sendTemplate(data.USER, "pregnancy_dua", [
-    data.NAME,
-    dua
+  await sendTemplate(data.USER, "pregnancy_dua", [
+    data.NAME,   // {{1}}
+    dua          // {{2}}
   ]);
+
+  console.log("🤲 Daily dua sent");
+}
+
+// ================================
+// CRON TIME FROM .env
+// ================================
+const time = process.env.DAILY_DUA_TIME || "09:00";
+const [hour, minute] = time.split(":");
+
+// Runs every day at DAILY_DUA_TIME
+cron.schedule(`${minute} ${hour} * * *`, () => {
+  sendDailyDua().catch(console.error);
 });
+
+module.exports = { sendDailyDua };
