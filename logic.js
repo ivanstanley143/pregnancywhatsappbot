@@ -6,19 +6,24 @@ module.exports = async (text) => {
   const week = getPregnancyWeek();
 
   /* =========================
-     🤲 DUA COMMAND
+     🤲 DUA
   ========================== */
   if (msg.includes("dua")) {
-    const dua = data.WEEKLY_DUA[week] || "Allahumma ihfaz waladana";
-    return format(`🤲 ${dua}`);
+    return {
+      type: "dua",
+      text: data.WEEKLY_DUA[week] || "Allahumma ihfaz waladana"
+    };
   }
 
   /* =========================
-     📅 WEEK TEXT (image handled by weeklyEngine)
+     🤰 WEEK (text only – image comes from weeklyEngine)
   ========================== */
   if (msg === "week" || msg.includes("baby")) {
     const baby = data.BABY_IMAGES[week];
-    return format(`🤰 Week ${week}\nBaby size: ${baby?.size || "Coming soon"}`);
+    return {
+      type: "text",
+      text: `🤰 Week ${week}\nBaby size: ${baby?.size || "Coming soon"}`
+    };
   }
 
   /* =========================
@@ -26,65 +31,71 @@ module.exports = async (text) => {
   ========================== */
   if (msg.includes("trimester")) {
     const tri = getTrimester(week);
-    return format(`🩺 You are in Trimester ${tri}`);
+    return {
+      type: "text",
+      text: `🩺 You are in Trimester ${tri}`
+    };
   }
 
   /* =========================
-     🍎 SINGLE FOOD CHECK
+     🥗 SAFE FOODS
+  ========================== */
+  if (msg === "safe") {
+    const list = Object.values(data.FOOD_DB)
+      .filter(f => f.status === "SAFE")
+      .map(f => f.label)
+      .join("\n");
+
+    return {
+      type: "template",
+      template: "pregnancy_safe_foods",
+      params: [list]
+    };
+  }
+
+  /* =========================
+     🚫 AVOID FOODS
+  ========================== */
+  if (msg === "avoid") {
+    const list = Object.values(data.FOOD_DB)
+      .filter(f => f.status === "AVOID")
+      .map(f => f.label)
+      .join("\n");
+
+    return {
+      type: "template",
+      template: "pregnancy_avoid_foods",
+      params: [list]
+    };
+  }
+
+  /* =========================
+     ⚠️ LIMIT FOODS
+  ========================== */
+  if (msg === "limit") {
+    const list = Object.values(data.FOOD_DB)
+      .filter(f => f.status === "LIMIT")
+      .map(f => f.label)
+      .join("\n");
+
+    return {
+      type: "template",
+      template: "pregnancy_limit_foods",
+      params: [list]
+    };
+  }
+
+  /* =========================
+     🍎 SINGLE FOOD
   ========================== */
   const key = msg.replace(/\s/g, "");
   const food = data.FOOD_DB[key];
 
   if (food) {
-    const icon =
-      food.status === "SAFE"
-        ? "🟢 SAFE"
-        : food.status === "LIMIT"
-        ? "🟡 LIMIT"
-        : "🔴 AVOID";
-
-    return format(
-      `${food.label}\n${icon}\n${food.details}`
-    );
-  }
-
-  /* =========================
-     🟢 SAFE FOODS
-  ========================== */
-  if (msg === "safe") {
-    return format(
-      "🥗 Pregnancy Safe Foods\n\n" +
-        Object.values(data.FOOD_DB)
-          .filter(f => f.status === "SAFE")
-          .map(f => f.label)
-          .join("\n")
-    );
-  }
-
-  /* =========================
-     🔴 AVOID FOODS
-  ========================== */
-  if (msg === "avoid") {
-    return format(
-      "🚫 Foods to Avoid During Pregnancy\n\n" +
-        Object.values(data.FOOD_DB)
-          .filter(f => f.status === "AVOID")
-          .map(f => f.label)
-          .join("\n")
-    );
-  }
-
-  /* =========================
-     🟡 LIMIT FOODS
-  ========================== */
-  if (msg === "limit") {
-    return format(
-      "⚠️ Foods to Limit During Pregnancy\n\n" +
-        Object.values(data.FOOD_DB)
-          .filter(f => f.status === "LIMIT")
-          .map(f => f.label)
-          .join("\n")
-    );
+    return {
+      type: "text",
+      text: `${food.label}\n${food.status}\n${food.details}`
+    };
   }
 
   return null;
