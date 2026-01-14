@@ -61,17 +61,13 @@ app.post("/webhook", async (req, res) => {
       return res.sendStatus(200);
     }
 
-    // ⛔ TEMPORARY BLOCK while templates are in review
-    if (process.env.ALLOW_SEND === "false") {
-      console.log("⏳ Templates in review – skipping send");
-      return res.sendStatus(200);
-    }
+    const templatesAllowed = process.env.ALLOW_SEND === "true";
 
     /* --------------------------------
        TEMPLATE RESPONSES
-       (safe / avoid / limit foods)
+       (safe / avoid / limit foods etc.)
     --------------------------------- */
-    if (result.type === "template") {
+    if (result.type === "template" && templatesAllowed) {
       await sendTemplate(from, result.template, [
         {
           type: "body",
@@ -83,12 +79,13 @@ app.post("/webhook", async (req, res) => {
     }
 
     /* --------------------------------
-       DEFAULT RESPONSE (dua, food info)
+       FALLBACK TEXT RESPONSE
+       (while templates are in review)
     --------------------------------- */
     else {
       await sendTemplate(from, "pregnancy_dua", [
         process.env.NAME || "Murshida Sulthana",
-        result.text
+        result.text || result.params?.[0]
       ]);
     }
 
