@@ -61,8 +61,14 @@ app.post("/webhook", async (req, res) => {
       return res.sendStatus(200);
     }
 
+    // ⛔ TEMPORARY BLOCK while templates are in review
+    if (process.env.ALLOW_SEND === "false") {
+      console.log("⏳ Templates in review – skipping send");
+      return res.sendStatus(200);
+    }
+
     /* --------------------------------
-       TEMPLATE-BASED RESPONSE
+       TEMPLATE RESPONSES
        (safe / avoid / limit foods)
     --------------------------------- */
     if (result.type === "template") {
@@ -77,8 +83,7 @@ app.post("/webhook", async (req, res) => {
     }
 
     /* --------------------------------
-       NORMAL TEXT RESPONSE
-       (dua, single food, week text)
+       DEFAULT RESPONSE (dua, food info)
     --------------------------------- */
     else {
       await sendTemplate(from, "pregnancy_dua", [
@@ -89,7 +94,10 @@ app.post("/webhook", async (req, res) => {
 
     res.sendStatus(200);
   } catch (err) {
-    console.error("Webhook error:", err.response?.data || err.message);
+    console.error(
+      "Webhook error:",
+      err.response?.data || err.message
+    );
     res.sendStatus(200);
   }
 });
