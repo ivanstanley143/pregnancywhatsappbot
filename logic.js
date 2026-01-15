@@ -11,7 +11,7 @@ module.exports = async (text, from) => {
   ========================== */
   if (msg.startsWith("add appointment")) {
     // Only admin can add
-  const sender = from.replace(/\D/g, "");
+  const sender = String(from || "").replace(/\D/g, "");
 
   if (sender !== data.USER) {
     return {
