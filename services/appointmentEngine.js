@@ -12,11 +12,30 @@ async function processAppointmentReminders() {
   });
 
   for (const r of list) {
-    await sendTemplate(data.USER, "pregnancy_appointment", [
-      r.data.date,   // {{1}}
-      r.data.time,   // {{2}}
-      r.data.note    // {{3}}
-    ]);
+    // SAFETY + ORDER FIX
+    const doctorOrType =
+      r.data?.doctor ||
+      r.data?.type ||
+      "Doctor Appointment";
+
+    const date =
+      r.data?.date ||
+      "Scheduled date";
+
+    const timeOrNote =
+      r.data?.time ||
+      r.data?.note ||
+      "Please be on time";
+
+    await sendTemplate(
+      data.USER,
+      "pregnancy_appointment",
+      [
+        String(doctorOrType), // {{1}}
+        String(date),         // {{2}}
+        String(timeOrNote)    // {{3}}
+      ]
+    );
 
     r.sent = true;
     r.sentAt = new Date();
