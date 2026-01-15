@@ -1,46 +1,63 @@
+const cron = require("node-cron");
 const Reminder = require("../models/Reminder");
 const { sendTemplate } = require("../whatsappCloud");
 const data = require("../data");
 
+// ================================
+// PROCESS APPOINTMENT REMINDERS
+// ================================
 async function processAppointmentReminders() {
-  const now = new Date();
+  try {
+    const now = new Date();
 
-  const list = await Reminder.find({
-    type: "appointment",
-    sent: false,
-    scheduledAt: { $lte: now }
-  });
+    const list = await Reminder.find({
+      type: "appointment",
+      sent: false,
+      scheduledAt: { $lte: now }
+    });
 
-  for (const r of list) {
-    // SAFETY + ORDER FIX
-    const doctorOrType =
-      r.data?.doctor ||
-      r.data?.type ||
-      "Doctor Appointment";
+    for (const r of list) {
+      const date =
+        r.data?.date || "Scheduled date";
 
-    const date =
-      r.data?.date ||
-      "Scheduled date";
+      const time =
+        r.data?.time || "Scheduled time";
 
-    const timeOrNote =
-      r.data?.time ||
-      r.data?.note ||
-      "Please be on time";
+      const note =
+        r.data?.note || "Doctor visit";
 
-    await sendTemplate(
-      data.USER,
-      "pregnancy_appointment",
-      [
-        String(doctorOrType), // {{1}}
-        String(date),         // {{2}}
-        String(timeOrNote)    // {{3}}
-      ]
+      await sendTemplate(
+        data.USER,
+        "pregnancy_appointment",
+        [
+          String(date), // {{1}} 📅
+          String(time), // {{2}} ⏰
+          String(note)  // {{3}} 📝
+        ]
+      );
+
+      r.sent = true;
+      r.sentAt = new Date();
+      await r.save();
+
+      console.log(
+        "🩺 Appointment reminder sent:",
+        date,
+        time,
+        note
+      );
+    }
+  } catch (err) {
+    console.error(
+      "❌ Appointment Engine error:",
+      err.message
     );
-
-    r.sent = true;
-    r.sentAt = new Date();
-    await r.save();
   }
 }
 
-module.exports = { processAppointmentReminders };
+// ================================
+// RUN EVERY MINUTE
+// ================================
+cron.schedule("* * * * *", processAppointmentReminders);
+
+module.exports = { processAppointmentReminde
