@@ -10,16 +10,17 @@ module.exports = async (text, from) => {
      ➕ ADD APPOINTMENT (ADMIN)
   ========================== */
   if (msg.startsWith("add appointment")) {
-    // Only admin can add
-  const sender = String(from || "").replace(/\D/g, "");
+    // Normalize numbers (admin check)
+    const sender = String(from || "").replace(/\D/g, "");
+    const admin = String(data.USER || "").replace(/\D/g, "");
 
-  if (sender !== data.USER) {
-    return {
-      type: "text",
-      text: "⛔ You are not authorized to add appointments."
-    };
-  }
-
+    // Compare last 10 digits only
+    if (sender.slice(-10) !== admin.slice(-10)) {
+      return {
+        type: "text",
+        text: "⛔ You are not authorized to add appointments."
+      };
+    }
 
     const parts = msg.split(" ");
 
