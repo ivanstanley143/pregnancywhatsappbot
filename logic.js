@@ -17,28 +17,27 @@ module.exports = async (text) => {
       type: "template",
       template: "pregnancy_dua",
       params: [
-        String(data.NAME || "Mother"), // {{1}} Name
-        String(duaText)                // {{2}} Dua
+        String(data.NAME),     // {{1}}
+        String(duaText)        // {{2}}
       ]
     };
   }
 
   /* =========================
      🤰 WEEK ({{1}} {{2}} {{3}})
-     {{1}} = Name
-     {{2}} = Baby size
-     {{3}} = Week number
   ========================== */
   if (msg === "week" || msg.includes("baby")) {
     const baby = data.BABY_IMAGES[week];
+
+    if (!baby) return null;
 
     return {
       type: "template",
       template: `pregnancy_week_${week}`,
       params: [
-        String(data.NAME || "Mother"),           // {{1}}
-        String(baby?.size || "Growing"),          // {{2}}
-        String(week)                              // {{3}}
+        String(data.NAME),         // {{1}}
+        String(baby.size),         // {{2}}
+        String(week)               // {{3}}
       ]
     };
   }
@@ -100,35 +99,18 @@ module.exports = async (text) => {
   const food = data.FOOD_DB[key];
 
   if (food) {
-    if (food.status === "SAFE") {
-      return {
-        type: "template",
-        template: "pregnancy_food_safe",
-        params: [
-          "Fruits, vegetables, milk, eggs, nuts and whole grains"
-        ]
-      };
-    }
-
-    if (food.status === "AVOID") {
-      return {
-        type: "template",
-        template: "pregnancy_food_avoid",
-        params: [
-          "Papaya, pineapple, alcohol and raw meat"
-        ]
-      };
-    }
-
-    if (food.status === "LIMIT") {
-      return {
-        type: "template",
-        template: "pregnancy_food_limit",
-        params: [
-          "Coffee, tea, sugar and junk food"
-        ]
-      };
-    }
+    return {
+      type: "template",
+      template:
+        food.status === "SAFE"
+          ? "pregnancy_food_safe"
+          : food.status === "AVOID"
+          ? "pregnancy_food_avoid"
+          : "pregnancy_food_limit",
+      params: [
+        food.details
+      ]
+    };
   }
 
   return null;
