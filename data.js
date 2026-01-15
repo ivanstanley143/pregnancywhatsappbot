@@ -106,7 +106,7 @@ module.exports = {
     alcohol: { label: "Alcohol 🍺❌", status: "AVOID", details: "Alcohol 🍺 Avoid ❌ - Harms baby brain development." },
     smoking: { label: "Smoking 🚬❌", status: "AVOID", details: "Smoking 🚬 Avoid ❌ - High risk of miscarriage and low birth weight." },
     energydrink: { label: "Energy Drink 🥫⚡❌", status: "AVOID", details: "Energy Drink 🥫⚡ Avoid ❌ - Very high caffeine and chemicals." },
-    rawsprouts: { label: "Raw Sprouts 🌱❌", status: "AVOID", details: "Raw Sprouts 🌱 Avoid ❌ - High risk of bacterial infection." }
+    rawsprouts: { label: "Raw Sprouts 🌱❌", status: "AVOID", details: "Raw Sprouts 🌱 Avoid ❌ - High risk of bacterial infection." },
     unpasteurizedmilk: { label: "Unpasteurized Milk 🐄🥛❌", status: "AVOID", details: "Unpasteurized Milk 🐄🥛 Avoid ❌ - Listeria infection risk." },
     softcheese: { label: "Soft Cheese 🧀❌", status: "AVOID", details: "Soft Cheese 🧀 Avoid ❌ - May contain harmful bacteria." }
   }
