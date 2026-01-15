@@ -2,9 +2,85 @@ const data = require("./data");
 const { getPregnancyWeek, getTrimester } = require("./utils");
 const Reminder = require("./models/Reminder");
 
-module.exports = async (text) => {
+module.exports = async (text, from) => {
   const msg = text.toLowerCase().trim();
   const week = getPregnancyWeek();
+
+  /* =========================
+     ➕ ADD APPOINTMENT (ADMIN)
+  ========================== */
+  if (msg.startsWith("add appointment")) {
+    // Only admin can add
+    if (from !== data.USER) {
+      return {
+        type: "text",
+        text: "⛔ You are not authorized to add appointments."
+      };
+    }
+
+    const parts = msg.split(" ");
+
+    // add appointment DD-MM-YYYY HH:MM Note...
+    if (parts.length < 5) {
+      return {
+        type: "text",
+        text:
+          "❌ Invalid format.\n\n" +
+          "Use:\nadd appointment DD-MM-YYYY HH:MM Note\n\n" +
+          "Example:\nadd appointment 20-01-2026 10:30 Doctor visit"
+      };
+    }
+
+    const dateStr = parts[2]; // DD-MM-YYYY
+    const timeStr = parts[3]; // HH:MM
+    const note = parts.slice(4).join(" ");
+
+    const [day, month, year] = dateStr.split("-");
+    const [hour, minute] = timeStr.split(":");
+
+    const scheduledAt = new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      Number(hour),
+      Number(minute)
+    );
+
+    if (isNaN(scheduledAt.getTime())) {
+      return {
+        type: "text",
+        text: "❌ Invalid date or time."
+      };
+    }
+
+    await Reminder.create({
+      user: data.USER,
+      type: "appointment",
+      sent: false,
+      scheduledAt,
+      data: {
+        date: scheduledAt.toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "long",
+          year: "numeric"
+        }),
+        time: scheduledAt.toLocaleTimeString("en-IN", {
+          hour: "numeric",
+          minute: "2-digit"
+        }),
+        note
+      }
+    });
+
+    return {
+      type: "text",
+      text:
+        "✅ Appointment added successfully.\n\n" +
+        `📅 ${dateStr}\n` +
+        `⏰ ${timeStr}\n` +
+        `📝 ${note}`
+    };
+  }
 
   /* =========================
      🤲 DUA ({{1}} {{2}})
@@ -18,8 +94,8 @@ module.exports = async (text) => {
       type: "template",
       template: "pregnancy_dua",
       params: [
-        String(data.NAME),     // {{1}}
-        String(duaText)        // {{2}}
+        String(data.NAME),
+        String(duaText)
       ]
     };
   }
@@ -35,9 +111,9 @@ module.exports = async (text) => {
       type: "template",
       template: `pregnancy_week_${week}`,
       params: [
-        String(data.NAME),     // {{1}}
-        String(baby.size),     // {{2}}
-        String(week)           // {{3}}
+        String(data.NAME),
+        String(baby.size),
+        String(week)
       ]
     };
   }
@@ -54,13 +130,9 @@ module.exports = async (text) => {
   }
 
   /* =========================
-     📅 APPOINTMENT (ON DEMAND)
-     Shows NEXT FUTURE appointment
-     {{1}} Date
-     {{2}} Time
-     {{3}} Note
+     📅 APPOINTMENT (VIEW NEXT)
   ========================== */
-  if (msg.includes("appointment")) {
+  if (msg === "appointment") {
     const now = new Date();
 
     const next = await Reminder.findOne({
@@ -79,15 +151,15 @@ module.exports = async (text) => {
       type: "template",
       template: "pregnancy_appointment",
       params: [
-        String(next.data.date), // {{1}}
-        String(next.data.time), // {{2}}
-        String(next.data.note)  // {{3}}
+        String(next.data.date),
+        String(next.data.time),
+        String(next.data.note)
       ]
     };
   }
 
   /* =========================
-     🥗 SAFE ({{1}})
+     🥗 SAFE
   ========================== */
   if (msg === "safe") {
     return {
@@ -100,7 +172,7 @@ module.exports = async (text) => {
   }
 
   /* =========================
-     🚫 AVOID ({{1}})
+     🚫 AVOID
   ========================== */
   if (msg === "avoid") {
     return {
@@ -113,7 +185,7 @@ module.exports = async (text) => {
   }
 
   /* =========================
-     ⚠️ LIMIT ({{1}})
+     ⚠️ LIMIT
   ========================== */
   if (msg === "limit") {
     return {
@@ -126,7 +198,7 @@ module.exports = async (text) => {
   }
 
   /* =========================
-     🍎 SINGLE FOOD → CATEGORY
+     🍎 SINGLE FOOD
   ========================== */
   const key = msg.replace(/\s/g, "");
   const food = data.FOOD_DB[key];
@@ -140,9 +212,7 @@ module.exports = async (text) => {
           : food.status === "AVOID"
           ? "pregnancy_food_avoid"
           : "pregnancy_food_limit",
-      params: [
-        food.details
-      ]
+      params: [food.details]
     };
   }
 
