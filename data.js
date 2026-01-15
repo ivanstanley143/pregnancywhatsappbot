@@ -7,8 +7,8 @@ module.exports = {
 
   // 💧 Water reminder times
   WATER_TIMES: [
-    "07:30","09:30","11:30","13:30",
-    "15:30","17:30","19:30","21:00","22:30"
+    "07:30","09:00","09:30","11:30","13:30",
+    "14:00","15:30","17:30","19:30","21:00","21:30","22:30","23:30"
   ],
 
   // 🍽️ Meals — SINGLE bilingual variable
@@ -41,38 +41,38 @@ module.exports = {
   // 🍎 Food safety database (SOURCE OF TRUTH)
   FOOD_DB: {
     // ✅ SAFE FOODS
-    apple: { label: "Apple 🍎", status: "SAFE", details: "Rich in fiber, vitamins and antioxidants. Helps digestion." },
-    banana: { label: "Banana 🍌", status: "SAFE", details: "Good source of energy and potassium. Helps reduce nausea." },
-    orange: { label: "Orange 🍊", status: "SAFE", details: "High in Vitamin C. Boosts immunity and iron absorption." },
-    grapes: { label: "Grapes 🍇", status: "SAFE", details: "Contains antioxidants. Wash well before eating." },
-    pomegranate: { label: "Pomegranate 🍎", status: "SAFE", details: "Improves hemoglobin and supports blood health." },
-    avocado: { label: "Avocado 🥑", status: "SAFE", details: "Healthy fats. Supports baby’s brain development." },
-    mango: { label: "Mango 🥭", status: "SAFE", details: "Vitamin A rich. Eat in moderation." },
-    pear: { label: "Pear 🍐", status: "SAFE", details: "Fiber rich. Prevents constipation." },
-    watermelon: { label: "Watermelon 🍉", status: "SAFE", details: "Helps hydration and reduces swelling." },
+    apple: { label: "Apple 🍎", status: "SAFE", details: "Apple 🍎 Safe ✅ - Rich in fiber, vitamins and antioxidants. Helps digestion." },
+    banana: { label: "Banana 🍌", status: "SAFE", details: "Banana 🍌 Safe ✅ - Good source of energy and potassium. Helps reduce nausea." },
+    orange: { label: "Orange 🍊", status: "SAFE", details: "Orange 🍊 Safe ✅ - High in Vitamin C. Boosts immunity and iron absorption." },
+    grapes: { label: "Grapes 🍇", status: "SAFE", details: "Grapes 🍇 Safe ✅ - Contains antioxidants. Wash well before eating." },
+    pomegranate: { label: "Pomegranate 🍎", status: "SAFE", details: "Pomegranate 🍎 Safe ✅ - Improves hemoglobin and supports blood health." },
+    avocado: { label: "Avocado 🥑", status: "SAFE", details: "Avocado 🥑 Safe ✅ - Healthy fats. Supports baby’s brain development." },
+    mango: { label: "Mango 🥭", status: "SAFE", details: "Mango 🥭 Safe ✅ - Vitamin A rich. Eat in moderation." },
+    pear: { label: "Pear 🍐", status: "SAFE", details: "Pear 🍐 Safe ✅ - Fiber rich. Prevents constipation." },
+    watermelon: { label: "Watermelon 🍉", status: "SAFE", details: "Watermelon 🍉 Safe ✅ - Helps hydration and reduces swelling." },
 
-    carrot: { label: "Carrot 🥕", status: "SAFE", details: "Rich in beta-carotene. Good for vision." },
-    beetroot: { label: "Beetroot 🍠", status: "SAFE", details: "Supports blood circulation and hemoglobin." },
-    spinach: { label: "Spinach 🥬", status: "SAFE", details: "High in iron and folate. Prevents anemia." },
-    broccoli: { label: "Broccoli 🥦", status: "SAFE", details: "Calcium and fiber rich. Strengthens bones." },
-    pumpkin: { label: "Pumpkin 🎃", status: "SAFE", details: "Vitamin rich. Supports immunity." },
-    sweetpotato: { label: "Sweet Potato 🍠", status: "SAFE", details: "Energy rich and good fiber source." },
+    carrot: { label: "Carrot 🥕", status: "SAFE", details: "Carrot 🥕 Safe ✅ - Rich in beta-carotene. Good for vision." },
+    beetroot: { label: "Beetroot 🍠", status: "SAFE", details: "Beetroot 🍠 Safe ✅ - Supports blood circulation and hemoglobin." },
+    spinach: { label: "Spinach 🥬", status: "SAFE", details: "Spinach 🥬 Safe ✅ - High in iron and folate. Prevents anemia." },
+    broccoli: { label: "Broccoli 🥦", status: "SAFE", details: "Broccoli 🥦 Safe ✅ - Calcium and fiber rich. Strengthens bones." },
+    pumpkin: { label: "Pumpkin 🎃", status: "SAFE", details: "Pumpkin 🎃 Safe ✅ - Vitamin rich. Supports immunity." },
+    sweetpotato: { label: "Sweet Potato 🍠", status: "SAFE", details: "Sweet Potato 🍠 Safe ✅ - Energy rich and good fiber source." },
 
-    rice: { label: "Rice 🍚", status: "SAFE", details: "Easy to digest and good energy source." },
-    chapati: { label: "Chapati 🫓", status: "SAFE", details: "Whole-grain energy source." },
-    oats: { label: "Oats 🌾", status: "SAFE", details: "High fiber. Helps control sugar levels." },
+    rice: { label: "Rice 🍚", status: "SAFE", details: "Rice 🍚 Safe ✅ - Easy to digest and good energy source." },
+    chapati: { label: "Chapati 🫓", status: "SAFE", details: "Chapati 🫓 Safe ✅ - Whole-grain energy source." },
+    oats: { label: "Oats 🌾", status: "SAFE", details: "Oats 🌾 Safe ✅ - High fiber. Helps control sugar levels." },
 
-    milk: { label: "Milk 🥛", status: "SAFE", details: "Excellent calcium source. Consume boiled milk." },
-    curd: { label: "Curd 🥣", status: "SAFE", details: "Probiotics. Good for digestion." },
-    paneer: { label: "Paneer 🧀", status: "SAFE", details: "High protein and calcium." },
-    egg: { label: "Egg 🥚", status: "SAFE", details: "High-quality protein. Must be well cooked." },
-    chicken: { label: "Chicken 🍗", status: "SAFE", details: "Lean protein. Always well cooked." },
-    fish: { label: "Fish 🐟", status: "SAFE", details: "Omega-3 fatty acids. Choose low-mercury fish." },
+    milk: { label: "Milk 🥛", status: "SAFE", details: "Milk 🥛" Safe ✅ - Excellent calcium source. Consume boiled milk." },
+    curd: { label: "Curd 🥣", status: "SAFE", details: "Curd 🥣 Safe ✅ - Probiotics. Good for digestion." },
+    paneer: { label: "Paneer 🧀", status: "SAFE", details: "Paneer 🧀 Safe ✅ - High protein and calcium." },
+    egg: { label: "Egg 🥚", status: "SAFE", details: "Egg 🥚 Safe ✅ - High-quality protein. Must be well cooked." },
+    chicken: { label: "Chicken 🍗", status: "SAFE", details: "Chicken 🍗 Safe ✅ - Lean protein. Always well cooked." },
+    fish: { label: "Fish 🐟", status: "SAFE", details: "Fish 🐟 Safe ✅ - Omega-3 fatty acids. Choose low-mercury fish." },
 
     sapodilla: {
       label: "Sapodilla 🧆",
       status: "SAFE",
-      details: "High fiber, vitamins A, C, B6, folate, iron and calcium. Reduces acidity and nausea."
+      details: "Sapodilla 🧆 Safe ✅ - High fiber, vitamins A, C, B6, folate, iron and calcium. Reduces acidity and nausea."
     },
 
     // ⚠️ LIMIT FOODS
