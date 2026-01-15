@@ -55,14 +55,17 @@ module.exports = async (text) => {
 
   /* =========================
      📅 APPOINTMENT (ON DEMAND)
+     Shows NEXT FUTURE appointment
      {{1}} Date
      {{2}} Time
      {{3}} Note
   ========================== */
   if (msg.includes("appointment")) {
+    const now = new Date();
+
     const next = await Reminder.findOne({
       type: "appointment",
-      sent: false
+      scheduledAt: { $gte: now }
     }).sort({ scheduledAt: 1 });
 
     if (!next) {
