@@ -1,18 +1,19 @@
 const axios = require("axios");
+const TEMPLATE_IMAGES = require("./templateImages");
 
 async function sendTemplate(to, template) {
   try {
     let components = [];
 
-    // 👇 IMPORTANT: image required for pregnancy_dua
-    if (template === "pregnancy_dua") {
+    // Auto-attach IMAGE header if template has one
+    if (TEMPLATE_IMAGES[template]) {
       components.push({
         type: "header",
         parameters: [
           {
             type: "image",
             image: {
-              link: "https://res.cloudinary.com/drcqtmobe/image/upload/v1768457852/517965945_10227891801024733_1699566531759542400_n_1_ttdeai.jpg"
+              link: TEMPLATE_IMAGES[template]
             }
           }
         ]
@@ -39,9 +40,11 @@ async function sendTemplate(to, template) {
       }
     );
 
-    console.log("✅ Sent:", template);
+    console.log("✅ Sent:", template, "→", to);
   } catch (err) {
-    console.error("❌ WhatsApp send failed:", err.response?.data || err.message);
+    console.error("❌ WhatsApp send failed");
+    console.error("Template:", template);
+    console.error(err.response?.data || err.message);
   }
 }
 
