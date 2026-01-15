@@ -7,21 +7,11 @@ module.exports = async (text, from) => {
   const week = getPregnancyWeek();
 
   /* =========================
-     ➕ ADD APPOINTMENT (ADMIN)
+     ➕ ADD APPOINTMENT
+     Command:
+     add appointment DD-MM-YYYY HH:MM Note
   ========================== */
   if (msg.startsWith("add appointment")) {
-    // Normalize numbers (admin check)
-    const sender = String(from || "").replace(/\D/g, "");
-    const admin = String(data.USER || "").replace(/\D/g, "");
-
-    // Compare last 10 digits only
-    if (sender.slice(-10) !== admin.slice(-10)) {
-      return {
-        type: "text",
-        text: "⛔ You are not authorized to add appointments."
-      };
-    }
-
     const parts = msg.split(" ");
 
     // add appointment DD-MM-YYYY HH:MM Note...
