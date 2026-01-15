@@ -81,7 +81,7 @@ module.exports = {
     cauliflower: { label: "Cauliflower 🥦", status: "SAFE", details: "Cauliflower 🥦 Safe ✅ - Good source of fiber and Vitamin C." },
     cabbage: { label: "Cabbage 🥬", status: "SAFE", details: "Cabbage 🥬 Safe ✅ - Rich in fiber. Eat well-cooked to avoid gas." },
     ladiesfinger: { label: "Ladies Finger (Okra) 🌿", status: "SAFE", details: "Ladies Finger (Okra) 🌿 Safe ✅ - High fiber. Helps digestion and blood sugar control." },
-    beans: { label: "Green Beans 🫘", status: "SAFE", details: "Green Beans 🫘" Safe ✅ - Good source of folate and fiber." },
+    beans: { label: "Green Beans 🫘", status: "SAFE", details: "Green Beans 🫘 Safe ✅ - Good source of folate and fiber." },
     peas: { label: "Green Peas 🟢", status: "SAFE", details: "Green Peas 🟢 Safe ✅ - Protein and fiber rich. Supports baby growth." }
     cherry: { label: "Cherry 🍒", status: "SAFE", details: "Cherry 🍒 Safe ✅ - Contains antioxidants and anti-inflammatory properties." },
 
@@ -89,7 +89,7 @@ module.exports = {
     papayaripe: { label: "Ripe Papaya 🍈", status: "LIMIT", details: "Ripe Papaya 🍈 Limit ⚠️ - Only fully ripe papaya in small amounts. Avoid in early pregnancy." },
     coffee: { label: "Coffee ☕", status: "LIMIT", details: "Coffee ☕ Limit ⚠️ - High caffeine. Limit to one cup per day." },
     tea: { label: "Tea 🍵", status: "LIMIT", details: "Tea 🍵 Limit ⚠️ - Contains caffeine. Avoid excess intake." },
-    chocolate: { label: "Chocolate 🍫", status: "LIMIT", details: "Chocolate 🍫" Limit ⚠️ - High sugar and caffeine. Eat occasionally." },
+    chocolate: { label: "Chocolate 🍫", status: "LIMIT", details: "Chocolate 🍫 Limit ⚠️ - High sugar and caffeine. Eat occasionally." },
     friedfood: { label: "Fried Food 🍟", status: "LIMIT", details: "Fried Food 🍟 Limit ⚠️ - Hard to digest and may cause acidity." },
     junkfood: { label: "Junk Food 🍔", status: "LIMIT", details: "Junk Food 🍔 Limit ⚠️ - Low nutrition. Avoid frequent consumption." },
     salt: { label: "Salt 🧂", status: "LIMIT", details: "Salt 🧂 Limit ⚠️ - Excess may cause swelling." },
