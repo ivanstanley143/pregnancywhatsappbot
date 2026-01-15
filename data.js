@@ -17,7 +17,7 @@ module.exports = {
     "11:00": "ഇടക്കാല ലഘുഭക്ഷണം – പഴങ്ങൾ (Snack – Fruits)",
     "14:00": "ഉച്ചഭക്ഷണം – ചോറ് & കറി (Lunch – Rice & Curry)",
     "17:00": "സായാഹ്ന ലഘുഭക്ഷണം – ചായ & ബിസ്കറ്റ് (Evening Snack – Tea & Biscuit)",
-    "19:00": "ലഘുഭക്ഷണം – പാൽ (Light Food – Milk)",
+    "19:00": "ലഘുഭക്ഷണം – പാൽ & പഴം (Light Food – Milk & Fruit)",
     "21:00": "രാത്രി ഭക്ഷണം – ചപ്പാത്തി & പച്ചക്കറി (Dinner – Chapati & Vegetables)"
   },
 
