@@ -15,7 +15,6 @@ async function processWeeklyGrowth() {
     const baby = data.BABY_IMAGES[week];
     if (!baby) return;
 
-    // Only weeks that exist in Meta
     const templateMap = {
       12: "pregnancy_week_12",
       13: "pregnancy_week_13",
@@ -37,9 +36,9 @@ async function processWeeklyGrowth() {
       data.USER,
       templateName,
       [
-        String(data.NAME || "Mother"),              // {{1}} Name
-        String(baby.size || "Growing beautifully"), // {{2}} Baby size
-        String(week)                                // {{3}} Week number
+        String(data.NAME),      // {{1}}
+        String(baby.size),      // {{2}}
+        String(week)            // {{3}}
       ]
     );
 
