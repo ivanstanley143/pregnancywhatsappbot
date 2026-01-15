@@ -5,38 +5,77 @@ module.exports = async (text) => {
   const msg = text.toLowerCase().trim();
   const week = getPregnancyWeek();
 
-  /* 🤲 DUA */
+  /* =========================
+     🤲 DUA (HAS 2 VARIABLES)
+     {{1}} = Name
+     {{2}} = Dua text
+  ========================== */
   if (msg.includes("dua")) {
-    return { type: "template", template: "pregnancy_dua" };
+    return {
+      type: "template",
+      template: "pregnancy_dua",
+      params: [
+        data.NAME, // {{1}}
+        data.WEEKLY_DUA[week] ||
+          "رَبِّي تَمِّمْ بِالْخَيْرِ Rabbi tammim bil khair" // {{2}}
+      ]
+    };
   }
 
-  /* 🤰 WEEK */
+  /* =========================
+     🤰 WEEK
+  ========================== */
   if (msg === "week" || msg.includes("baby")) {
-    return { type: "template", template: `pregnancy_week_${week}` };
+    return {
+      type: "template",
+      template: `pregnancy_week_${week}`
+    };
   }
 
-  /* 🩺 TRIMESTER */
+  /* =========================
+     🩺 TRIMESTER
+  ========================== */
   if (msg.includes("trimester")) {
     const tri = getTrimester(week);
-    return { type: "template", template: `pregnancy_trimester_${tri}` };
+    return {
+      type: "template",
+      template: `pregnancy_trimester_${tri}`
+    };
   }
 
-  /* 🥗 SAFE */
+  /* =========================
+     🥗 SAFE
+  ========================== */
   if (msg === "safe") {
-    return { type: "template", template: "pregnancy_food_safe" };
+    return {
+      type: "template",
+      template: "pregnancy_food_safe"
+    };
   }
 
-  /* 🚫 AVOID */
+  /* =========================
+     🚫 AVOID
+  ========================== */
   if (msg === "avoid") {
-    return { type: "template", template: "pregnancy_food_avoid" };
+    return {
+      type: "template",
+      template: "pregnancy_food_avoid"
+    };
   }
 
-  /* ⚠️ LIMIT */
+  /* =========================
+     ⚠️ LIMIT
+  ========================== */
   if (msg === "limit") {
-    return { type: "template", template: "pregnancy_food_limit" };
+    return {
+      type: "template",
+      template: "pregnancy_food_limit"
+    };
   }
 
-  /* 🍎 SINGLE FOOD → CATEGORY */
+  /* =========================
+     🍎 SINGLE FOOD → CATEGORY
+  ========================== */
   const key = msg.replace(/\s/g, "");
   const food = data.FOOD_DB[key];
 
