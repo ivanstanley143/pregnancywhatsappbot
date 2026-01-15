@@ -62,7 +62,7 @@ module.exports = {
     chapati: { label: "Chapati 🫓", status: "SAFE", details: "Chapati 🫓 Safe ✅ - Whole-grain energy source." },
     oats: { label: "Oats 🌾", status: "SAFE", details: "Oats 🌾 Safe ✅ - High fiber. Helps control sugar levels." },
     Tendercoconut: { label: "Tender Coconut 🥥", status: "SAFE", details: "Tender Coconut 🥥 Safe ✅ - Provides natural electrolytes (potassium, sodium, magnesium). May help reduce risk of urinary tract infections. Amino acids & antioxidants. B-complex vitamins." },
-    milk: { label: "Milk 🥛", status: "SAFE", details: "Milk 🥛" Safe ✅ - Excellent calcium source. Consume boiled milk." },
+    milk: { label: "Milk 🥛", status: "SAFE", details: "Milk 🥛 Safe ✅ - Excellent calcium source. Consume boiled milk." },
     curd: { label: "Curd 🥣", status: "SAFE", details: "Curd 🥣 Safe ✅ - Probiotics. Good for digestion." },
     paneer: { label: "Paneer 🧀", status: "SAFE", details: "Paneer 🧀 Safe ✅ - High protein and calcium." },
     egg: { label: "Egg 🥚", status: "SAFE", details: "Egg 🥚 Safe ✅ - High-quality protein. Must be well cooked." },
@@ -94,7 +94,7 @@ module.exports = {
     junkfood: { label: "Junk Food 🍔", status: "LIMIT", details: "Junk Food 🍔 Limit ⚠️ - Low nutrition. Avoid frequent consumption." },
     salt: { label: "Salt 🧂", status: "LIMIT", details: "Salt 🧂 Limit ⚠️ - Excess may cause swelling." },
     potato: { label: "Potato 🥔", status: "LIMIT", details: "Potato 🥔 Limit ⚠️ - High carbohydrate. Eat in moderation." },
-    brinjal: { label: "Brinjal (Eggplant) 🍆", status: "LIMIT", details: "Brinjal (Eggplant) 🍆 Limit ⚠️ - May cause acidity in some women." }
+    brinjal: { label: "Brinjal (Eggplant) 🍆", status: "LIMIT", details: "Brinjal (Eggplant) 🍆 Limit ⚠️ - May cause acidity in some women." },
     sugar: { label: "Sugar 🍬", status: "LIMIT", details: "Sugar 🍬 Limit ⚠️ - Increases gestational diabetes risk." },
 
     // 🚫 AVOID FOODS
