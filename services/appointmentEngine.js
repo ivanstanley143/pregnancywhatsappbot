@@ -18,21 +18,27 @@ async function processAppointmentReminders() {
 
     for (const r of list) {
       const date =
-        r.data?.date || "Scheduled date";
+        r.data && r.data.date
+          ? r.data.date
+          : "Scheduled date";
 
       const time =
-        r.data?.time || "Scheduled time";
+        r.data && r.data.time
+          ? r.data.time
+          : "Scheduled time";
 
       const note =
-        r.data?.note || "Doctor visit";
+        r.data && r.data.note
+          ? r.data.note
+          : "Doctor visit";
 
       await sendTemplate(
         data.USER,
         "pregnancy_appointment",
         [
-          String(date), // {{1}} 📅
-          String(time), // {{2}} ⏰
-          String(note)  // {{3}} 📝
+          String(date), // {{1}}
+          String(time), // {{2}}
+          String(note)  // {{3}}
         ]
       );
 
@@ -58,6 +64,10 @@ async function processAppointmentReminders() {
 // ================================
 // RUN EVERY MINUTE
 // ================================
-cron.schedule("* * * * *", processAppointmentReminders);
+cron.schedule("* * * * *", () => {
+  processAppointmentReminders();
+});
 
-module.exports = { processAppointmentReminde
+module.exports = {
+  processAppointmentReminders
+};
