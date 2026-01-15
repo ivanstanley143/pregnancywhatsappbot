@@ -56,21 +56,41 @@ app.post("/webhook", async (req, res) => {
     const from = message.from;
     const text = message.text.body.trim();
 
+    console.log("📩 Incoming message:", text);
+
     const result = await logic(text);
     if (!result) {
       return res.sendStatus(200);
     }
 
-    const templatesAllowed = process.env.ALLOW_SEND === "true";
-
     /* --------------------------------
-       TEMPLATE RESPONSES (FINAL FIX)
+       TEMPLATE RESPONSES (FINAL)
     --------------------------------- */
-    if (result.type === "template" && templatesAllowed) {
+    if (result.type === "template") {
+      console.log(
+        "📤 Sending template:",
+        result.template,
+        result.params
+      );
+
       await sendTemplate(
         from,
         result.template,
         result.params || []
+      );
+    }
+
+    /* --------------------------------
+       TEXT RESPONSES (if any)
+    --------------------------------- */
+    if (result.type === "text") {
+      await sendTemplate(
+        from,
+        "pregnancy_dua", // fallback text-capable template
+        [
+          String(process.env.NAME || "Murshida Sulthana"),
+          String(result.text)
+        ]
       );
     }
 
