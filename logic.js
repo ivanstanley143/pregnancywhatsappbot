@@ -1,5 +1,6 @@
 const data = require("./data");
 const { getPregnancyWeek, getTrimester } = require("./utils");
+const Reminder = require("./models/Reminder");
 
 module.exports = async (text) => {
   const msg = text.toLowerCase().trim();
@@ -28,16 +29,15 @@ module.exports = async (text) => {
   ========================== */
   if (msg === "week" || msg.includes("baby")) {
     const baby = data.BABY_IMAGES[week];
-
     if (!baby) return null;
 
     return {
       type: "template",
       template: `pregnancy_week_${week}`,
       params: [
-        String(data.NAME),         // {{1}}
-        String(baby.size),         // {{2}}
-        String(week)               // {{3}}
+        String(data.NAME),     // {{1}}
+        String(baby.size),     // {{2}}
+        String(week)           // {{3}}
       ]
     };
   }
@@ -50,6 +50,36 @@ module.exports = async (text) => {
     return {
       type: "template",
       template: `pregnancy_trimester_${tri}`
+    };
+  }
+
+  /* =========================
+     📅 APPOINTMENT (ON DEMAND)
+     {{1}} Date
+     {{2}} Time
+     {{3}} Note
+  ========================== */
+  if (msg.includes("appointment")) {
+    const next = await Reminder.findOne({
+      type: "appointment",
+      sent: false
+    }).sort({ scheduledAt: 1 });
+
+    if (!next) {
+      return {
+        type: "text",
+        text: "🩺 No upcoming appointments found."
+      };
+    }
+
+    return {
+      type: "template",
+      template: "pregnancy_appointment",
+      params: [
+        String(next.data.date), // {{1}}
+        String(next.data.time), // {{2}}
+        String(next.data.note)  // {{3}}
+      ]
     };
   }
 
