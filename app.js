@@ -64,29 +64,14 @@ app.post("/webhook", async (req, res) => {
     const templatesAllowed = process.env.ALLOW_SEND === "true";
 
     /* --------------------------------
-       TEMPLATE RESPONSES
-       (safe / avoid / limit foods etc.)
+       TEMPLATE RESPONSES (FINAL FIX)
     --------------------------------- */
     if (result.type === "template" && templatesAllowed) {
-      await sendTemplate(from, result.template, [
-        {
-          type: "body",
-          parameters: [
-            { type: "text", text: result.params[0] }
-          ]
-        }
-      ]);
-    }
-
-    /* --------------------------------
-       FALLBACK TEXT RESPONSE
-       (while templates are in review)
-    --------------------------------- */
-    else {
-      await sendTemplate(from, "pregnancy_dua", [
-        process.env.NAME || "Murshida Sulthana",
-        result.text || result.params?.[0]
-      ]);
+      await sendTemplate(
+        from,
+        result.template,
+        result.params || []
+      );
     }
 
     res.sendStatus(200);
