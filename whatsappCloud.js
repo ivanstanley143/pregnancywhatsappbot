@@ -1,11 +1,11 @@
 const axios = require("axios");
 const TEMPLATE_IMAGES = require("./templateImages");
 
-async function sendTemplate(to, template) {
+async function sendTemplate(to, template, bodyParams = []) {
   try {
     let components = [];
 
-    // Auto-attach IMAGE header if template has one
+    // 1️⃣ IMAGE HEADER (if template has image)
     if (TEMPLATE_IMAGES[template]) {
       components.push({
         type: "header",
@@ -17,6 +17,17 @@ async function sendTemplate(to, template) {
             }
           }
         ]
+      });
+    }
+
+    // 2️⃣ BODY PARAMETERS (VERY IMPORTANT)
+    if (bodyParams.length > 0) {
+      components.push({
+        type: "body",
+        parameters: bodyParams.map(value => ({
+          type: "text",
+          text: value
+        }))
       });
     }
 
@@ -40,10 +51,9 @@ async function sendTemplate(to, template) {
       }
     );
 
-    console.log("✅ Sent:", template, "→", to);
+    console.log("✅ Sent:", template);
   } catch (err) {
-    console.error("❌ WhatsApp send failed");
-    console.error("Template:", template);
+    console.error("❌ WhatsApp send failed:", template);
     console.error(err.response?.data || err.message);
   }
 }
