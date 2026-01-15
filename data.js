@@ -82,7 +82,7 @@ module.exports = {
     cabbage: { label: "Cabbage 🥬", status: "SAFE", details: "Cabbage 🥬 Safe ✅ - Rich in fiber. Eat well-cooked to avoid gas." },
     ladiesfinger: { label: "Ladies Finger (Okra) 🌿", status: "SAFE", details: "Ladies Finger (Okra) 🌿 Safe ✅ - High fiber. Helps digestion and blood sugar control." },
     beans: { label: "Green Beans 🫘", status: "SAFE", details: "Green Beans 🫘 Safe ✅ - Good source of folate and fiber." },
-    peas: { label: "Green Peas 🟢", status: "SAFE", details: "Green Peas 🟢 Safe ✅ - Protein and fiber rich. Supports baby growth." }
+    peas: { label: "Green Peas 🟢", status: "SAFE", details: "Green Peas 🟢 Safe ✅ - Protein and fiber rich. Supports baby growth." },
     cherry: { label: "Cherry 🍒", status: "SAFE", details: "Cherry 🍒 Safe ✅ - Contains antioxidants and anti-inflammatory properties." },
 
     // ⚠️ LIMIT FOODS
