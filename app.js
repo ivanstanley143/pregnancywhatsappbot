@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const axios = require("axios");
 const connectDB = require("./db");
 
 const { sendTemplate } = require("./whatsappCloud");
@@ -49,65 +50,4 @@ app.post("/webhook", async (req, res) => {
     const changes = entry?.changes?.[0];
     const message = changes?.value?.messages?.[0];
 
-    if (!message || !message.text) {
-      return res.sendStatus(200);
-    }
-
-    const from = message.from;
-    const text = message.text.body.trim();
-
-    console.log("📩 Incoming message:", text);
-
-    const result = await logic(text);
-    if (!result) {
-      return res.sendStatus(200);
-    }
-
-    /* --------------------------------
-       TEMPLATE RESPONSES (FINAL)
-    --------------------------------- */
-    if (result.type === "template") {
-      console.log(
-        "📤 Sending template:",
-        result.template,
-        result.params
-      );
-
-      await sendTemplate(
-        from,
-        result.template,
-        result.params || []
-      );
-    }
-
-    /* --------------------------------
-       TEXT RESPONSES (if any)
-    --------------------------------- */
-    if (result.type === "text") {
-      await sendTemplate(
-        from,
-        "pregnancy_dua", // fallback text-capable template
-        [
-          String(process.env.NAME || "Murshida Sulthana"),
-          String(result.text)
-        ]
-      );
-    }
-
-    res.sendStatus(200);
-  } catch (err) {
-    console.error(
-      "Webhook error:",
-      err.response?.data || err.message
-    );
-    res.sendStatus(200);
-  }
-});
-
-/* ================================
-   SERVER START
-================================ */
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log("🚀 Pregnancy Bot running on port", PORT);
-});
+    if (!message || !message.text
