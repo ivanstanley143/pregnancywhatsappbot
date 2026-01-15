@@ -1,52 +1,47 @@
 const axios = require("axios");
 
-const TOKEN = process.env.META_TOKEN;
-const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
-
-const URL = `https://graph.facebook.com/v22.0/${PHONE_NUMBER_ID}/messages`;
-
-function clean(text) {
-  return String(text)
-    .replace(/\r?\n/g, " ")
-    .replace(/\s{2,}/g, " ")
-    .trim();
-}
-
-async function sendTemplate(to, name, params = []) {
-  const payload = {
-    messaging_product: "whatsapp",
-    to,
-    type: "template",
-    template: {
-      name,
-      language: { code: "en" },
-      components: [
-        {
-          type: "body",
-          parameters: params.map(p => ({
-            type: "text",
-            text: clean(p)
-          }))
-        }
-      ]
-    }
-  };
-
+async function sendTemplate(to, template) {
   try {
-    await axios.post(URL, payload, {
-      headers: {
-        Authorization: `Bearer ${TOKEN}`,
-        "Content-Type": "application/json"
-      }
-    });
+    let components = [];
 
-    console.log(`✅ Sent ${name} to ${to}`);
+    // 👇 IMPORTANT: image required for pregnancy_dua
+    if (template === "pregnancy_dua") {
+      components.push({
+        type: "header",
+        parameters: [
+          {
+            type: "image",
+            image: {
+              link: "https://res.cloudinary.com/drcqtmobe/image/upload/v1768457852/517965945_10227891801024733_1699566531759542400_n_1_ttdeai.jpg"
+            }
+          }
+        ]
+      });
+    }
+
+    await axios.post(
+      `https://graph.facebook.com/v22.0/${process.env.PHONE_NUMBER_ID}/messages`,
+      {
+        messaging_product: "whatsapp",
+        to,
+        type: "template",
+        template: {
+          name: template,
+          language: { code: "en" },
+          components
+        }
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.META_TOKEN}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    console.log("✅ Sent:", template);
   } catch (err) {
-    console.error("❌ WhatsApp send failed");
-    console.error("Template:", name);
-    console.error("Phone:", to);
-    console.error("Meta:", err.response?.data || err.message);
-    throw err;
+    console.error("❌ WhatsApp send failed:", err.response?.data || err.message);
   }
 }
 
