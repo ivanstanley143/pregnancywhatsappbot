@@ -17,15 +17,17 @@ module.exports = async (text) => {
       type: "template",
       template: "pregnancy_dua",
       params: [
-        String(data.NAME || "Mother"), // {{1}}
-        String(duaText)                // {{2}}
+        String(data.NAME || "Mother"), // {{1}} Name
+        String(duaText)                // {{2}} Dua
       ]
     };
   }
 
   /* =========================
      🤰 WEEK ({{1}} {{2}} {{3}})
-     Applies to week 13 / 14 / 15
+     {{1}} = Name
+     {{2}} = Baby size
+     {{3}} = Week number
   ========================== */
   if (msg === "week" || msg.includes("baby")) {
     const baby = data.BABY_IMAGES[week];
@@ -34,15 +36,15 @@ module.exports = async (text) => {
       type: "template",
       template: `pregnancy_week_${week}`,
       params: [
-        `Week ${week}`,                              // {{1}}
-        baby?.size || "Growing beautifully",         // {{2}}
-        "Your baby is developing well 💕"            // {{3}}
+        String(data.NAME || "Mother"),           // {{1}}
+        String(baby?.size || "Growing"),          // {{2}}
+        String(week)                              // {{3}}
       ]
     };
   }
 
   /* =========================
-     🩺 TRIMESTER (already correct)
+     🩺 TRIMESTER
   ========================== */
   if (msg.includes("trimester")) {
     const tri = getTrimester(week);
@@ -93,7 +95,6 @@ module.exports = async (text) => {
 
   /* =========================
      🍎 SINGLE FOOD → CATEGORY
-     (routes to 1-variable templates)
   ========================== */
   const key = msg.replace(/\s/g, "");
   const food = data.FOOD_DB[key];
