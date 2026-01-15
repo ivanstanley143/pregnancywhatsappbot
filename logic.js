@@ -11,12 +11,15 @@ module.exports = async (text, from) => {
   ========================== */
   if (msg.startsWith("add appointment")) {
     // Only admin can add
-    if (from !== data.USER) {
-      return {
-        type: "text",
-        text: "⛔ You are not authorized to add appointments."
-      };
-    }
+  const sender = from.replace(/\D/g, "");
+
+  if (sender !== data.USER) {
+    return {
+      type: "text",
+      text: "⛔ You are not authorized to add appointments."
+    };
+  }
+
 
     const parts = msg.split(" ");
 
