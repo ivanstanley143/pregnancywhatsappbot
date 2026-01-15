@@ -4,7 +4,8 @@ const data = require("../data");
 const { sendTemplate } = require("../whatsappCloud");
 
 function getPregnancyWeek() {
-  const diff = (new Date() - new Date(data.LMP)) / (1000 * 60 * 60 * 24);
+  const diff =
+    (new Date() - new Date(data.LMP)) / (1000 * 60 * 60 * 24);
   return Math.floor(diff / 7) + 1;
 }
 
@@ -32,11 +33,15 @@ async function processWeeklyGrowth() {
     });
     if (exists) return;
 
-    await sendTemplate(data.USER, templateName, [
-      data.NAME,          // {{1}}
-      baby.size,         // {{2}}
-      String(week)       // {{3}}
-    ]);
+    await sendTemplate(
+      data.USER,
+      templateName,
+      [
+        String(data.NAME || "Mother"),              // {{1}} Name
+        String(baby.size || "Growing beautifully"), // {{2}} Baby size
+        String(week)                                // {{3}} Week number
+      ]
+    );
 
     await Reminder.create({
       user: data.USER,
