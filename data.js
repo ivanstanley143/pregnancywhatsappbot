@@ -6,7 +6,7 @@ module.exports = {
   TIMEZONE: "Asia/Kolkata",
 
   // 💧 Water reminder times
-  WATER_TIMES: ["07:30","09:30","11:30","13:30","15:30","17:30","19:30","21:00"],
+  WATER_TIMES: ["07:30","09:30","11:30","13:30","15:30","17:30","19:30","21:00","22:30"],
 
   // 🍽️ Meals — SINGLE bilingual variable
   MEALS: {
@@ -37,11 +37,11 @@ module.exports = {
 
   // 🍎 Food safety database
   FOOD_DB: {
-    apple: { label: "Apple 🍎", status: "SAFE", details: "Rich in fiber and vitamins" },
-    banana: { label: "Banana 🍌", status: "SAFE", details: "Good for energy and nausea" },
-    orange: { label: "Orange 🍊", status: "SAFE", details: "High vitamin C" },
-    milk: { label: "Milk 🥛", status: "SAFE", details: "Calcium for bones" },
-    egg: { label: "Egg 🥚", status: "SAFE", details: "High protein (well cooked)" },
+    apple: { label: "Apple 🍎", status: "SAFE", details: "✅ Safe - Rich in fiber and vitamins" },
+    banana: { label: "Banana 🍌", status: "SAFE", details: "✅ Safe - Good for energy and nausea" },
+    orange: { label: "Orange 🍊", status: "SAFE", details: "✅ Safe - High vitamin C" },
+    milk: { label: "Milk 🥛", status: "SAFE", details: "✅ Safe - Calcium for bones" },
+    egg: { label: "Egg 🥚", status: "SAFE", details: "✅ Safe - High protein (well cooked)" },
 
     coffee: { label: "Coffee ☕", status: "LIMIT", details: "Limit caffeine" },
     tea: { label: "Tea 🍵", status: "LIMIT", details: "Contains caffeine" },
