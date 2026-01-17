@@ -2,49 +2,52 @@ const cron = require("node-cron");
 const data = require("../data");
 const { sendTemplate } = require("../whatsappCloud");
 
-let sentToday = {
-  water: {},
-  meal: {}
-};
+console.log("⏱️ Minute scheduler loaded");
 
-// Reset every midnight
-cron.schedule("0 0 * * *", () => {
-  sentToday = { water: {}, meal: {} };
-  console.log("🔄 Daily reminder reset");
-});
+const sentToday = new Set();
 
-// Check every minute
-cron.schedule("* * * * *", async () => {
+function getHHMM() {
   const now = new Date();
-  const hhmm = now.toTimeString().slice(0, 5); // "HH:MM"
+  return now.toTimeString().slice(0, 5); // "19:30"
+}
 
-  /* 💧 WATER */
-  if (
-    data.WATER_TIMES.includes(hhmm) &&
-    !sentToday.water[hhmm]
-  ) {
-    await sendTemplate(
-      data.USER,
-      "pregnancy_water_reminder_v1",
-      []
-    );
+function getTodayKey(prefix, hhmm) {
+  const d = new Date();
+  return `${prefix}-${hhmm}-${d.toDateString()}`;
+}
 
-    sentToday.water[hhmm] = true;
-    console.log("💧 Water reminder sent at", hhmm);
+cron.schedule("* * * * *", async () => {
+  const hhmm = getHHMM();
+
+  /* =====================
+     💧 WATER REMINDER
+  ===================== */
+  if (data.WATER_TIMES.includes(hhmm)) {
+    const key = getTodayKey("water", hhmm);
+    if (!sentToday.has(key)) {
+      await sendTemplate(
+        data.USER,
+        "pregnancy_water_reminder_v1",
+        []
+      );
+      sentToday.add(key);
+      console.log("💧 Water reminder sent:", hhmm);
+    }
   }
 
-  /* 🍽️ MEAL */
-  if (
-    data.MEALS[hhmm] &&
-    !sentToday.meal[hhmm]
-  ) {
-    await sendTemplate(
-      data.USER,
-      "pregnancy_meal_reminder",
-      [String(data.MEALS[hhmm])]
-    );
-
-    sentToday.meal[hhmm] = true;
-    console.log("🍽️ Meal reminder sent at", hhmm);
+  /* =====================
+     🍽️ MEAL REMINDER
+  ===================== */
+  if (data.MEALS[hhmm]) {
+    const key = getTodayKey("meal", hhmm);
+    if (!sentToday.has(key)) {
+      await sendTemplate(
+        data.USER,
+        "pregnancy_meal_reminder",
+        [String(data.MEALS[hhmm])]
+      );
+      sentToday.add(key);
+      console.log("🍽️ Meal reminder sent:", hhmm);
+    }
   }
 });
