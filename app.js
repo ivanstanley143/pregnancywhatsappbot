@@ -7,7 +7,7 @@ const { sendTemplate } = require("./whatsappCloud");
 const logic = require("./logic");
 
 // background engines (auto running via cron)
-require("./services/dailyEngine");
+require("./services/minuteScheduler");
 require("./services/duaEngine");
 require("./services/weeklyEngine");
 require("./services/trimesterEngine");
