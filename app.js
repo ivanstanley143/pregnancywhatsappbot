@@ -11,6 +11,8 @@ require("./services/minuteScheduler");
 require("./services/duaEngine");
 require("./services/weeklyEngine");
 require("./services/trimesterEngine");
+require("./services/athaanDailyEngine");
+require("./services/athaanReminderEngine");
 require("./services/appointmentEngine");
 
 const app = express();
