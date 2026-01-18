@@ -14,7 +14,6 @@ module.exports = async (text, from) => {
   if (msg.startsWith("add appointment")) {
     const parts = msg.split(" ");
 
-    // add appointment DD-MM-YYYY HH:MM Note...
     if (parts.length < 5) {
       return {
         type: "text",
@@ -25,8 +24,8 @@ module.exports = async (text, from) => {
       };
     }
 
-    const dateStr = parts[2]; // DD-MM-YYYY
-    const timeStr = parts[3]; // HH:MM
+    const dateStr = parts[2];
+    const timeStr = parts[3];
     const note = parts.slice(4).join(" ");
 
     const [day, month, year] = dateStr.split("-");
@@ -96,18 +95,39 @@ module.exports = async (text, from) => {
 
   /* =========================
      🤰 WEEK ({{1}} {{2}} {{3}})
+     ✅ FIXED WITH TEMPLATE MAP
   ========================== */
   if (msg === "week" || msg.includes("baby")) {
     const baby = data.BABY_IMAGES[week];
-    if (!baby) return null;
+    if (!baby) {
+      return {
+        type: "text",
+        text: `ℹ️ Week ${week} update will be available soon.`
+      };
+    }
+
+    const weekTemplateMap = {
+      12: "pregnancy_week_12",
+      13: "pregnancy_week_13",
+      14: "pregnancy_week_14_v1", // ✅ IMPORTANT FIX
+      15: "pregnancy_week_15"
+    };
+
+    const templateName = weekTemplateMap[week];
+    if (!templateName) {
+      return {
+        type: "text",
+        text: `ℹ️ Week ${week} update will be available soon.`
+      };
+    }
 
     return {
       type: "template",
-      template: `pregnancy_week_${week}`,
+      template: templateName,
       params: [
-        String(data.NAME),
-        String(baby.size),
-        String(week)
+        String(data.NAME),     // {{1}}
+        String(baby.size),     // {{2}}
+        String(week)           // {{3}}
       ]
     };
   }
