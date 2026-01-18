@@ -1,14 +1,35 @@
 const data = require("./data");
 const { getPregnancyWeek, getTrimester } = require("./utils");
 const Reminder = require("./models/Reminder");
+const { getTodayPrayerTimes } = require("./services/athaanService");
 
 module.exports = async (text, from) => {
   const msg = text.toLowerCase().trim();
   const week = getPregnancyWeek();
 
   /* =========================
+     🕌 AZAAN / ATHAAN
+     Command: athaan | azaan
+  ========================== */
+  if (msg === "athaan" || msg === "azaan") {
+    const times = await getTodayPrayerTimes();
+
+    return {
+      type: "template",
+      template: "athaan_daily_timetable",
+      params: [
+        times.Fajr,    // {{1}}
+        times.Sunrise, // {{2}}
+        times.Dhuhr,   // {{3}}
+        times.Asr,     // {{4}}
+        times.Maghrib, // {{5}}
+        times.Isha     // {{6}}
+      ]
+    };
+  }
+
+  /* =========================
      ➕ ADD APPOINTMENT
-     Command:
      add appointment DD-MM-YYYY HH:MM Note
   ========================== */
   if (msg.startsWith("add appointment")) {
@@ -40,10 +61,7 @@ module.exports = async (text, from) => {
     );
 
     if (isNaN(scheduledAt.getTime())) {
-      return {
-        type: "text",
-        text: "❌ Invalid date or time."
-      };
+      return { type: "text", text: "❌ Invalid date or time." };
     }
 
     await Reminder.create({
@@ -69,14 +87,12 @@ module.exports = async (text, from) => {
       type: "text",
       text:
         "✅ Appointment added successfully.\n\n" +
-        `📅 ${dateStr}\n` +
-        `⏰ ${timeStr}\n` +
-        `📝 ${note}`
+        `📅 ${dateStr}\n⏰ ${timeStr}\n📝 ${note}`
     };
   }
 
   /* =========================
-     🤲 DUA ({{1}} {{2}})
+     🤲 DUA
   ========================== */
   if (msg.includes("dua")) {
     const duaText =
@@ -86,35 +102,26 @@ module.exports = async (text, from) => {
     return {
       type: "template",
       template: "pregnancy_dua",
-      params: [
-        String(data.NAME),
-        String(duaText)
-      ]
+      params: [String(data.NAME), String(duaText)]
     };
   }
 
   /* =========================
-     🤰 WEEK ({{1}} {{2}} {{3}})
-     ✅ FIXED WITH TEMPLATE MAP
+     🤰 WEEK UPDATE
   ========================== */
   if (msg === "week" || msg.includes("baby")) {
     const baby = data.BABY_IMAGES[week];
-    if (!baby) {
-      return {
-        type: "text",
-        text: `ℹ️ Week ${week} update will be available soon.`
-      };
-    }
 
     const weekTemplateMap = {
       12: "pregnancy_week_12",
       13: "pregnancy_week_13",
-      14: "pregnancy_week_14_v1", // ✅ IMPORTANT FIX
+      14: "pregnancy_week_14_v1",
       15: "pregnancy_week_15"
     };
 
     const templateName = weekTemplateMap[week];
-    if (!templateName) {
+
+    if (!baby || !templateName) {
       return {
         type: "text",
         text: `ℹ️ Week ${week} update will be available soon.`
@@ -124,11 +131,7 @@ module.exports = async (text, from) => {
     return {
       type: "template",
       template: templateName,
-      params: [
-        String(data.NAME),     // {{1}}
-        String(baby.size),     // {{2}}
-        String(week)           // {{3}}
-      ]
+      params: [String(data.NAME), String(baby.size), String(week)]
     };
   }
 
@@ -137,28 +140,20 @@ module.exports = async (text, from) => {
   ========================== */
   if (msg.includes("trimester")) {
     const tri = getTrimester(week);
-    return {
-      type: "template",
-      template: `pregnancy_trimester_${tri}`
-    };
+    return { type: "template", template: `pregnancy_trimester_${tri}` };
   }
 
   /* =========================
-     📅 APPOINTMENT (VIEW NEXT)
+     📅 VIEW APPOINTMENT
   ========================== */
   if (msg === "appointment") {
-    const now = new Date();
-
     const next = await Reminder.findOne({
       type: "appointment",
-      scheduledAt: { $gte: now }
+      scheduledAt: { $gte: new Date() }
     }).sort({ scheduledAt: 1 });
 
     if (!next) {
-      return {
-        type: "text",
-        text: "🩺 No upcoming appointments found."
-      };
+      return { type: "text", text: "🩺 No upcoming appointments found." };
     }
 
     return {
@@ -173,46 +168,7 @@ module.exports = async (text, from) => {
   }
 
   /* =========================
-     🥗 SAFE
-  ========================== */
-  if (msg === "safe") {
-    return {
-      type: "template",
-      template: "pregnancy_food_safe",
-      params: [
-        "Fruits, vegetables, milk, eggs, nuts and whole grains"
-      ]
-    };
-  }
-
-  /* =========================
-     🚫 AVOID
-  ========================== */
-  if (msg === "avoid") {
-    return {
-      type: "template",
-      template: "pregnancy_food_avoid",
-      params: [
-        "Papaya, pineapple, alcohol, raw meat and unpasteurized food"
-      ]
-    };
-  }
-
-  /* =========================
-     ⚠️ LIMIT
-  ========================== */
-  if (msg === "limit") {
-    return {
-      type: "template",
-      template: "pregnancy_food_limit",
-      params: [
-        "Coffee, tea, sugar, soft drinks and junk food"
-      ]
-    };
-  }
-
-  /* =========================
-     🍎 SINGLE FOOD
+     🥗 FOOD CHECK
   ========================== */
   const key = msg.replace(/\s/g, "");
   const food = data.FOOD_DB[key];
