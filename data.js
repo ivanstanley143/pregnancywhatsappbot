@@ -1,13 +1,13 @@
 module.exports = {
   NAME: "Murshida Sulthana",
-  USER: "918921285711",
+  USER: "919074616114",
   LMP: "2025-10-18",
   FOOTER: "Follow Ziyadka’s Advice",
   TIMEZONE: "Asia/Kolkata",
 
   // 💧 Water reminder times
   WATER_TIMES: [
-    "07:30","09:00","09:30","10:45","11:30","13:30",
+    "07:30","09:00","09:45","11:30","13:30",
     "14:00","15:30","17:30","19:00","20:30","21:30","22:30","23:30"
   ],
 
