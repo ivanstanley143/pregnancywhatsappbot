@@ -20,5 +20,5 @@ module.exports = {
 
   // 🕌 Athaan
   athaan_daily_timetable: "https://res.cloudinary.com/drcqtmobe/image/upload/v1768852194/file_00000000b284720689aab575125ae76c_vkztdk.png",
-  athaan_reminder: "https://res.cloudinary.com/drcqtmobe/image/upload/v1768852194/file_00000000b284720689aab575125ae76c_vkztdk.png"
+  athaan_reminder: "https://res.cloudinary.com/drcqtmobe/image/upload/v1768852195/file_00000000aec07209887559258e3123fc_mko2pu.png"
 };
