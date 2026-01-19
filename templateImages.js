@@ -16,5 +16,9 @@ module.exports = {
   pregnancy_meal_reminder: "https://res.cloudinary.com/drcqtmobe/image/upload/v1768458867/oardefault_1_agxi79.jpg",
   pregnancy_water_reminder_v1: "https://res.cloudinary.com/drcqtmobe/image/upload/v1768458692/Gemini_Generated_Image_pbueuhpbueuhpbue_unf6s0.jpg",
 
-  pregnancy_dua: "https://res.cloudinary.com/drcqtmobe/image/upload/v1768457852/517965945_10227891801024733_1699566531759542400_n_1_ttdeai.jpg"
+  pregnancy_dua: "https://res.cloudinary.com/drcqtmobe/image/upload/v1768457852/517965945_10227891801024733_1699566531759542400_n_1_ttdeai.jpg",
+
+  // 🕌 Athaan
+  athaan_daily_timetable: "https://res.cloudinary.com/drcqtmobe/image/upload/v1768852194/file_00000000b284720689aab575125ae76c_vkztdk.png",
+  athaan_reminder: "https://res.cloudinary.com/drcqtmobe/image/upload/v1768852194/file_00000000b284720689aab575125ae76c_vkztdk.png"
 };
