@@ -19,33 +19,21 @@ function formatTime(date) {
 }
 
 async function getTodayPrayerTimes() {
-  // 📍 Kannur exact
   const coordinates = new Coordinates(11.8745, 75.3704);
 
-  // Base calculation
   const params = CalculationMethod.MoonsightingCommittee();
   params.madhab = Madhab.Shafi;
 
   const date = new Date();
   const p = new PrayerTimes(coordinates, date, params);
 
-  // ✅ Kerala Masjid Adjustments (IMPORTANT)
-  const OFFSETS = {
-    fajr: -8,      // earlier
-    sunrise: -25,  // earlier
-    dhuhr: -3,
-    asr: +2,
-    maghrib: 0,
-    isha: +1
-  };
-
   return {
-    Fajr: formatTime(addMinutes(p.fajr, OFFSETS.fajr)),
-    Sunrise: formatTime(addMinutes(p.sunrise, OFFSETS.sunrise)),
-    Dhuhr: formatTime(addMinutes(p.dhuhr, OFFSETS.dhuhr)),
-    Asr: formatTime(addMinutes(p.asr, OFFSETS.asr)),
-    Maghrib: formatTime(addMinutes(p.maghrib, OFFSETS.maghrib)),
-    Isha: formatTime(addMinutes(p.isha, OFFSETS.isha))
+    Fajr: formatTime(addMinutes(p.fajr, -8)),
+    Sunrise: formatTime(p.sunrise), // ✅ REAL SUNRISE
+    Dhuhr: formatTime(addMinutes(p.dhuhr, -3)),
+    Asr: formatTime(addMinutes(p.asr, +2)),
+    Maghrib: formatTime(p.maghrib),
+    Isha: formatTime(addMinutes(p.isha, +1))
   };
 }
 
