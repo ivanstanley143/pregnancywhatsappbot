@@ -4,7 +4,7 @@ const Reminder = require("./models/Reminder");
 const { getTodayPrayerTimes } = require("./services/athaanService");
 
 module.exports = async (text, from) => {
-  const msg = text.toLowerCase().trim();
+  const msg = String(text || "").toLowerCase().trim();
   const week = getPregnancyWeek();
 
   /* =========================
@@ -12,20 +12,43 @@ module.exports = async (text, from) => {
      Command: athaan | azaan
   ========================== */
   if (msg === "athaan" || msg === "azaan") {
-    const times = await getTodayPrayerTimes();
+    try {
+      const times = await getTodayPrayerTimes();
 
-    return {
-      type: "template",
-      template: "athaan_daily_timetable",
-      params: [
-        times.Fajr,    // {{1}}
-        times.Sunrise, // {{2}}
-        times.Dhuhr,   // {{3}}
-        times.Asr,     // {{4}}
-        times.Maghrib, // {{5}}
-        times.Isha     // {{6}}
-      ]
-    };
+      if (
+        !times ||
+        !times.Fajr ||
+        !times.Sunrise ||
+        !times.Dhuhr ||
+        !times.Asr ||
+        !times.Maghrib ||
+        !times.Isha
+      ) {
+        return {
+          type: "text",
+          text: "🕌 Prayer times are not available right now. Please try again later."
+        };
+      }
+
+      return {
+        type: "template",
+        template: "athaan_daily_timetable",
+        params: [
+          String(times.Fajr),    // {{1}}
+          String(times.Sunrise), // {{2}}
+          String(times.Dhuhr),   // {{3}}
+          String(times.Asr),     // {{4}}
+          String(times.Maghrib), // {{5}}
+          String(times.Isha)     // {{6}}
+        ]
+      };
+    } catch (err) {
+      console.error("Athaan error:", err.message);
+      return {
+        type: "text",
+        text: "🕌 Unable to fetch today’s prayer times. Please try again shortly."
+      };
+    }
   }
 
   /* =========================
@@ -182,7 +205,7 @@ module.exports = async (text, from) => {
           : food.status === "AVOID"
           ? "pregnancy_food_avoid"
           : "pregnancy_food_limit",
-      params: [food.details]
+      params: [String(food.details)]
     };
   }
 
