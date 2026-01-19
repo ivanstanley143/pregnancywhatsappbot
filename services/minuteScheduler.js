@@ -1,57 +1,40 @@
-
 const cron = require("node-cron");
 const data = require("../data");
 const { sendTemplate } = require("../whatsappCloud");
-const SentReminder = require("../models/SentReminder");
 
-console.log("⏱️ Minute scheduler loaded");
-
-function todayKey() {
-  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-}
-
-function getHHMM() {
-  return new Date().toTimeString().slice(0, 5);
-}
-
-async function alreadySent(type, time) {
-  return SentReminder.exists({
-    type,
-    time,
-    date: todayKey()
-  });
-}
-
-async function markSent(type, time) {
-  await SentReminder.create({
-    type,
-    time,
-    date: todayKey()
-  });
-}
+let lastRun = {};
 
 cron.schedule("* * * * *", async () => {
-  const hhmm = getHHMM();
+  const now = new Date();
+  const currentTime = now.toTimeString().slice(0, 5); // HH:MM
 
-  /* 💧 WATER */
-  if (data.WATER_TIMES.includes(hhmm)) {
-    if (!(await alreadySent("water", hhmm))) {
-      await sendTemplate(data.USER, "pregnancy_water_reminder_v1", []);
-      await markSent("water", hhmm);
-      console.log("💧 Water sent:", hhmm);
+  /* ================================
+     💧 WATER REMINDERS
+  ================================ */
+  if (data.WATER_TIMES.includes(currentTime)) {
+    if (lastRun[`water-${currentTime}`] !== currentTime) {
+      await sendTemplate(
+        data.USER,
+        "pregnancy_water_reminder_v1",
+        []
+      );
+      lastRun[`water-${currentTime}`] = currentTime;
+      console.log("💧 Water reminder sent:", currentTime);
     }
   }
 
-  /* 🍽️ MEAL */
-  if (data.MEALS[hhmm]) {
-    if (!(await alreadySent("meal", hhmm))) {
+  /* ================================
+     🍽️ MEAL REMINDERS
+  ================================ */
+  if (data.MEALS[currentTime]) {
+    if (lastRun[`meal-${currentTime}`] !== currentTime) {
       await sendTemplate(
         data.USER,
         "pregnancy_meal_reminder",
-        [String(data.MEALS[hhmm])]
+        [String(data.MEALS[currentTime])]
       );
-      await markSent("meal", hhmm);
-      console.log("🍽️ Meal sent:", hhmm);
+      lastRun[`meal-${currentTime}`] = currentTime;
+      console.log("🍽️ Meal reminder sent:", currentTime);
     }
   }
 });
