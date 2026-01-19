@@ -154,7 +154,11 @@ module.exports = async (text, from) => {
     return {
       type: "template",
       template: templateName,
-      params: [String(data.NAME), String(baby.size), String(week)]
+      params: [
+        String(data.NAME),
+        String(baby.size),
+        String(week)
+      ]
     };
   }
 
@@ -193,20 +197,22 @@ module.exports = async (text, from) => {
   /* =========================
      🥗 FOOD CHECK
   ========================== */
-  const key = msg.replace(/\s/g, "");
-  const food = data.FOOD_DB[key];
+  if (msg) {
+    const key = msg.replace(/\s/g, "");
+    const food = data.FOOD_DB[key];
 
-  if (food) {
-    return {
-      type: "template",
-      template:
-        food.status === "SAFE"
-          ? "pregnancy_food_safe"
-          : food.status === "AVOID"
-          ? "pregnancy_food_avoid"
-          : "pregnancy_food_limit",
-      params: [String(food.details)]
-    };
+    if (food) {
+      return {
+        type: "template",
+        template:
+          food.status === "SAFE"
+            ? "pregnancy_food_safe"
+            : food.status === "AVOID"
+            ? "pregnancy_food_avoid"
+            : "pregnancy_food_limit",
+        params: [String(food.details)]
+      };
+    }
   }
 
   return null;
