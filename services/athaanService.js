@@ -1,8 +1,8 @@
 const {
   PrayerTimes,
   CalculationMethod,
-  Coordinates,
-  Madhab
+  Madhab,
+  Coordinates
 } = require("adhan");
 
 function formatTime(date) {
@@ -10,16 +10,17 @@ function formatTime(date) {
     .toLocaleTimeString("en-IN", {
       hour: "2-digit",
       minute: "2-digit",
-      hour12: false
+      hour12: false,
+      timeZone: "Asia/Kolkata"
     });
 }
 
 async function getTodayPrayerTimes() {
-  // Kannur, Kerala
+  // 📍 Kannur, Kerala (exact)
   const coordinates = new Coordinates(11.8745, 75.3704);
 
-  // Shafi madhab
-  const params = CalculationMethod.MuslimWorldLeague();
+  // 🕌 Kerala-compatible calculation
+  const params = CalculationMethod.MoonsightingCommittee();
   params.madhab = Madhab.Shafi;
 
   const date = new Date();
