@@ -3,9 +3,12 @@ const TEMPLATE_IMAGES = require("./templateImages");
 
 async function sendTemplate(to, template, bodyParams = []) {
   try {
-    let components = [];
+    const components = [];
 
-    // 1️⃣ IMAGE HEADER (if template has image)
+    /* =========================
+       🖼️ HEADER IMAGE
+       (Only if template expects IMAGE)
+    ========================== */
     if (TEMPLATE_IMAGES[template]) {
       components.push({
         type: "header",
@@ -20,13 +23,16 @@ async function sendTemplate(to, template, bodyParams = []) {
       });
     }
 
-    // 2️⃣ BODY PARAMETERS (VERY IMPORTANT)
-    if (bodyParams.length > 0) {
+    /* =========================
+       🧾 BODY PARAMETERS
+       (Must match Meta variables count)
+    ========================== */
+    if (Array.isArray(bodyParams) && bodyParams.length > 0) {
       components.push({
         type: "body",
         parameters: bodyParams.map(value => ({
           type: "text",
-          text: value
+          text: String(value)   // 🔒 force string (Meta requirement)
         }))
       });
     }
@@ -51,7 +57,7 @@ async function sendTemplate(to, template, bodyParams = []) {
       }
     );
 
-    console.log("✅ Sent:", template);
+    console.log("✅ Sent template:", template);
   } catch (err) {
     console.error("❌ WhatsApp send failed:", template);
     console.error(err.response?.data || err.message);
