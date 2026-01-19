@@ -3,31 +3,55 @@ const { sendTemplate } = require("../whatsappCloud");
 const data = require("../data");
 const { getTodayPrayerTimes } = require("./athaanService");
 
+let todayTimes = null;
 let sentToday = {};
+let lastFetchedDate = null;
+
+// Convert HH:MM → minutes
+function toMinutes(t) {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+}
 
 cron.schedule("* * * * *", async () => {
-  const now = new Date();
-  const current = now.toTimeString().slice(0,5); // HH:MM
+  try {
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const today = now.toDateString();
 
-  const times = await getTodayPrayerTimes();
-
-  for (const [prayer, time] of Object.entries(times)) {
-    if (sentToday[prayer] === time) continue;
-
-    if (current === time) {
-      await sendTemplate(
-        data.USER,
-        "athaan_reminder",
-        [prayer]
-      );
-
-      sentToday[prayer] = time;
-      console.log(`🕌 ${prayer} reminder sent`);
+    /* =========================
+       🔁 Fetch prayer times ONCE per day
+    ========================== */
+    if (lastFetchedDate !== today) {
+      console.log("🕌 Fetching today's prayer times");
+      todayTimes = await getTodayPrayerTimes();
+      sentToday = {};
+      lastFetchedDate = today;
     }
-  }
 
-  // Reset at midnight
-  if (current === "00:01") {
-    sentToday = {};
+    if (!todayTimes) return;
+
+    /* =========================
+       ⏰ Check prayer windows
+    ========================== */
+    for (const [prayer, time] of Object.entries(todayTimes)) {
+      if (!time || sentToday[prayer]) continue;
+
+      const prayerMin = toMinutes(time);
+
+      // Allow 1-minute window
+      if (currentMinutes >= prayerMin && currentMinutes < prayerMin + 1) {
+        await sendTemplate(
+          data.USER,
+          "athaan_reminder",
+          [String(prayer)]
+        );
+
+        sentToday[prayer] = true;
+        console.log(`🕌 ${prayer} reminder sent at ${time}`);
+      }
+    }
+  } catch (err) {
+    console.error("❌ Athaan Reminder Error:", err.message);
   }
 });
