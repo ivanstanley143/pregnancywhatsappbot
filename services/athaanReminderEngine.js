@@ -3,55 +3,45 @@ const { sendTemplate } = require("../whatsappCloud");
 const data = require("../data");
 const { getTodayPrayerTimes } = require("./athaanService");
 
-let todayTimes = null;
-let sentToday = {};
-let lastFetchedDate = null;
+let cachedTimes = null;
+let cachedDate = null;
+let sent = {};
 
-// Convert HH:MM → minutes
-function toMinutes(t) {
-  const [h, m] = t.split(":").map(Number);
+const toMinutes = t => {
+  const [h,m] = t.split(":").map(Number);
   return h * 60 + m;
-}
+};
 
 cron.schedule("* * * * *", async () => {
-  try {
-    const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-    const today = now.toDateString();
+  const now = new Date();
+  const today = now.toISOString().slice(0,10);
+  const nowMin = now.getHours() * 60 + now.getMinutes();
 
-    /* =========================
-       🔁 Fetch prayer times ONCE per day
-    ========================== */
-    if (lastFetchedDate !== today) {
-      console.log("🕌 Fetching today's prayer times");
-      todayTimes = await getTodayPrayerTimes();
-      sentToday = {};
-      lastFetchedDate = today;
+  // Fetch prayer times once per day
+  if (cachedDate !== today) {
+    cachedTimes = await getTodayPrayerTimes();
+    cachedDate = today;
+    sent = {};
+    console.log("🕌 Athaan times cached for", today);
+  }
+
+  if (!cachedTimes) return;
+
+  for (const [prayer, time] of Object.entries(cachedTimes)) {
+    const key = `${today}-${prayer}`;
+    if (sent[key]) continue;
+
+    const prayerMin = toMinutes(time);
+
+    if (nowMin >= prayerMin && nowMin <= prayerMin + 1) {
+      await sendTemplate(
+        data.USER,
+        "athaan_reminder",
+        [prayer]
+      );
+
+      sent[key] = true;
+      console.log(`🕌 ${prayer} reminder sent`);
     }
-
-    if (!todayTimes) return;
-
-    /* =========================
-       ⏰ Check prayer windows
-    ========================== */
-    for (const [prayer, time] of Object.entries(todayTimes)) {
-      if (!time || sentToday[prayer]) continue;
-
-      const prayerMin = toMinutes(time);
-
-      // Allow 1-minute window
-      if (currentMinutes >= prayerMin && currentMinutes < prayerMin + 1) {
-        await sendTemplate(
-          data.USER,
-          "athaan_reminder",
-          [String(prayer)]
-        );
-
-        sentToday[prayer] = true;
-        console.log(`🕌 ${prayer} reminder sent at ${time}`);
-      }
-    }
-  } catch (err) {
-    console.error("❌ Athaan Reminder Error:", err.message);
   }
 });
