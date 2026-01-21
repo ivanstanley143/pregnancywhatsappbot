@@ -45,7 +45,7 @@ async function sendTemplate(to, template, bodyParams = []) {
         type: "template",
         template: {
           name: template,
-          language: { code: "en" },
+          language: { code: "en_US" },
           components
         }
       },
@@ -65,3 +65,4 @@ async function sendTemplate(to, template, bodyParams = []) {
 }
 
 module.exports = { sendTemplate };
+
