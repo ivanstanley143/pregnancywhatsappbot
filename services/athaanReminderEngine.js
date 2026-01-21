@@ -17,6 +17,18 @@ const PRAYERS = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
 
 cron.schedule("* * * * *", async () => {
   try {
+
+    /* 🧪 TEMP TEST — REMOVE AFTER CONFIRMATION */
+    await sendTemplate(
+      data.USER,
+      "athaan_reminder",
+      ["Test Prayer"]
+    );
+    console.log("🧪 Test Athaan template sent");
+    return; // ⛔ STOP HERE DURING TEST ONLY
+
+    // ===== NORMAL LOGIC BELOW (WILL RUN AFTER TEST REMOVAL) =====
+
     const now = new Date();
     const today = now.toISOString().slice(0, 10);
     const nowMin = now.getHours() * 60 + now.getMinutes();
@@ -44,7 +56,7 @@ cron.schedule("* * * * *", async () => {
         await sendTemplate(
           data.USER,
           "athaan_reminder",
-          [prayer] // {{prayer_name}}
+          [prayer]
         );
 
         sent[key] = true;
