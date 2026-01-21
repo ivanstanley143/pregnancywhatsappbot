@@ -1,13 +1,19 @@
 const axios = require("axios");
 const TEMPLATE_IMAGES = require("./templateImages");
 
-async function sendTemplate(to, template, bodyParams = []) {
+/**
+ * Send WhatsApp template message
+ * @param {string} to - User phone number
+ * @param {string} template - Template name
+ * @param {Array} bodyParams - Body parameters (indexed)
+ * @param {string} lang - Template language (default: en)
+ */
+async function sendTemplate(to, template, bodyParams = [], lang = "en") {
   try {
     const components = [];
 
     /* =========================
        🖼️ HEADER IMAGE
-       (Only if template expects IMAGE)
     ========================== */
     if (TEMPLATE_IMAGES[template]) {
       components.push({
@@ -25,14 +31,13 @@ async function sendTemplate(to, template, bodyParams = []) {
 
     /* =========================
        🧾 BODY PARAMETERS
-       (Must match Meta variables count)
     ========================== */
     if (Array.isArray(bodyParams) && bodyParams.length > 0) {
       components.push({
         type: "body",
         parameters: bodyParams.map(value => ({
           type: "text",
-          text: String(value)   // 🔒 force string (Meta requirement)
+          text: String(value)
         }))
       });
     }
@@ -45,7 +50,7 @@ async function sendTemplate(to, template, bodyParams = []) {
         type: "template",
         template: {
           name: template,
-          language: { code: "en_US" },
+          language: { code: lang }, // ✅ FIX HERE
           components
         }
       },
@@ -57,7 +62,7 @@ async function sendTemplate(to, template, bodyParams = []) {
       }
     );
 
-    console.log("✅ Sent template:", template);
+    console.log(`✅ Sent template: ${template} [${lang}]`);
   } catch (err) {
     console.error("❌ WhatsApp send failed:", template);
     console.error(err.response?.data || err.message);
@@ -65,4 +70,3 @@ async function sendTemplate(to, template, bodyParams = []) {
 }
 
 module.exports = { sendTemplate };
-
