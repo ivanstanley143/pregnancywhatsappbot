@@ -52,7 +52,7 @@ module.exports = {
     watermelon: { label: "Watermelon 🍉", status: "SAFE", details: "Watermelon 🍉 Safe ✅ - Helps hydration and reduces swelling." },
 
     carrot: { label: "Carrot 🥕", status: "SAFE", details: "Carrot 🥕 Safe ✅ - Rich in beta-carotene. Good for vision." },
-    drumstick: { label: "Drumstick (Moringa) 🌿", status: "SAFE", details: "Cooked drumstick is safe during the second trimester when eaten as part of regular meals. Provides iron, calcium, fiber, and folate. Avoid raw leaves, moringa powder/supplements, root, or medicinal extracts." },
+    drumstick: { label: "Drumstick (Moringa) 🌿", status: "SAFE", details: "Drumstick (Moringa) 🌿 Safe ✅ Cooked drumstick is safe during the second trimester when eaten as part of regular meals. Provides iron, calcium, fiber, and folate. Avoid raw leaves, moringa powder/supplements, root, or medicinal extracts." },
     beetroot: { label: "Beetroot 🍠", status: "SAFE", details: "Beetroot 🍠 Safe ✅ - Supports blood circulation and hemoglobin." },
     spinach: { label: "Spinach 🥬", status: "SAFE", details: "Spinach 🥬 Safe ✅ - High in iron and folate. Prevents anemia." },
     broccoli: { label: "Broccoli 🥦", status: "SAFE", details: "Broccoli 🥦 Safe ✅ - Calcium and fiber rich. Strengthens bones." },
