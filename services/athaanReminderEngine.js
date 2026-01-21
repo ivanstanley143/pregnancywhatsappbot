@@ -18,16 +18,24 @@ const PRAYERS = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
 cron.schedule("* * * * *", async () => {
   try {
 
-    /* 🧪 TEMP TEST — REMOVE AFTER CONFIRMATION */
+    /* =========================
+       🧪 TEMP TEST (RUN ONCE)
+       REMOVE AFTER CONFIRMATION
+    ========================== */
     await sendTemplate(
       data.USER,
       "athaan_reminder",
-      ["Test Prayer"]
+      ["Test Prayer"],
+      "en" // 🔑 IMPORTANT: athaan template language
     );
     console.log("🧪 Test Athaan template sent");
     return; // ⛔ STOP HERE DURING TEST ONLY
 
-    // ===== NORMAL LOGIC BELOW (WILL RUN AFTER TEST REMOVAL) =====
+
+    /* =========================
+       ⏰ NORMAL ATHAAN LOGIC
+       (ENABLE AFTER TEST)
+    ========================== */
 
     const now = new Date();
     const today = now.toISOString().slice(0, 10);
@@ -56,7 +64,8 @@ cron.schedule("* * * * *", async () => {
         await sendTemplate(
           data.USER,
           "athaan_reminder",
-          [prayer]
+          [prayer],
+          "en" // 🔑 IMPORTANT
         );
 
         sent[key] = true;
