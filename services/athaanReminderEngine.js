@@ -14,6 +14,7 @@ const toMinutes = t => {
   return h * 60 + m;
 };
 
+// Only real prayer names
 const PRAYERS = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
 
 cron.schedule("* * * * *", async () => {
@@ -22,7 +23,7 @@ cron.schedule("* * * * *", async () => {
     const today = now.toISOString().slice(0, 10);
     const nowMin = now.getHours() * 60 + now.getMinutes();
 
-    // 🔄 Fetch once per day
+    /* 🔄 Fetch prayer times once per day */
     if (cachedDate !== today) {
       cachedTimes = await getTodayPrayerTimes();
       cachedDate = today;
@@ -32,29 +33,21 @@ cron.schedule("* * * * *", async () => {
 
     if (!cachedTimes) return;
 
-    // 🔴 TEST MODE (REMOVE AFTER TEST)
-    const TEST_PRAYER = "Asr";
-    const TEST_TIME = "03:28"; // Set 2 minutes ahead of current time
-
     for (const prayer of PRAYERS) {
-      let time = cachedTimes[prayer];
+      const time = cachedTimes[prayer];
       if (!time) continue;
-
-      // 🔴 Force test time
-      if (prayer === TEST_PRAYER) {
-        time = TEST_TIME;
-      }
 
       const key = `${today}-${prayer}`;
       if (sent[key]) continue;
 
       const prayerMin = toMinutes(time);
 
+      // 3 minute safety window
       if (nowMin >= prayerMin && nowMin <= prayerMin + 3) {
         await sendTemplate(
           data.USER,
           "athaan_reminder",
-          [prayer]
+          [prayer] // {{1}}
         );
 
         sent[key] = true;
