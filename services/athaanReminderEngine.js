@@ -1,3 +1,5 @@
+process.env.TZ = "Asia/Kolkata";
+
 const cron = require("node-cron");
 const { sendTemplate } = require("../whatsappCloud");
 const data = require("../data");
@@ -12,41 +14,20 @@ const toMinutes = t => {
   return h * 60 + m;
 };
 
-// Only real prayers
 const PRAYERS = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
 
 cron.schedule("* * * * *", async () => {
   try {
-
-    /* =========================
-       🧪 TEMP TEST (RUN ONCE)
-       REMOVE AFTER CONFIRMATION
-    ========================== */
-    await sendTemplate(
-      data.USER,
-      "athaan_reminder",
-      ["Test Prayer"],
-      "en" // 🔑 IMPORTANT: athaan template language
-    );
-    console.log("🧪 Test Athaan template sent");
-    return; // ⛔ STOP HERE DURING TEST ONLY
-
-
-    /* =========================
-       ⏰ NORMAL ATHAAN LOGIC
-       (ENABLE AFTER TEST)
-    ========================== */
-
     const now = new Date();
     const today = now.toISOString().slice(0, 10);
     const nowMin = now.getHours() * 60 + now.getMinutes();
 
-    /* 🔄 Fetch once per day */
+    // Fetch once per day
     if (cachedDate !== today) {
       cachedTimes = await getTodayPrayerTimes();
       cachedDate = today;
       sent = {};
-      console.log("🕌 Athaan times cached for", today);
+      console.log("🕌 Athaan times cached for", today, cachedTimes);
     }
 
     if (!cachedTimes) return;
@@ -60,12 +41,12 @@ cron.schedule("* * * * *", async () => {
 
       const prayerMin = toMinutes(time);
 
-      if (nowMin >= prayerMin && nowMin <= prayerMin + 1) {
+      // 3 minute safety window
+      if (nowMin >= prayerMin && nowMin <= prayerMin + 3) {
         await sendTemplate(
           data.USER,
           "athaan_reminder",
-          [prayer],
-          "en" // 🔑 IMPORTANT
+          [prayer] // {{1}}
         );
 
         sent[key] = true;
@@ -73,6 +54,6 @@ cron.schedule("* * * * *", async () => {
       }
     }
   } catch (err) {
-    console.error("❌ Athaan reminder engine error:", err.message);
+    console.error("❌ Athaan reminder engine error:", err);
   }
 });
