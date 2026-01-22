@@ -8,6 +8,18 @@ module.exports = async (text, from) => {
   const week = getPregnancyWeek();
 
   /* =========================
+     🧪 TEST ATHAAN COMMAND
+     Command: test athaan
+  ========================== */
+  if (msg === "test athaan") {
+    return {
+      type: "template",
+      template: "athaan_reminder",
+      params: ["Fajr"] // Change to Dhuhr/Asr/Maghrib/Isha if needed
+    };
+  }
+
+  /* =========================
      🕌 AZAAN / ATHAAN
      Command: athaan | azaan
   ========================== */
@@ -34,12 +46,12 @@ module.exports = async (text, from) => {
         type: "template",
         template: "athaan_daily_timetable",
         params: [
-          String(times.Fajr),    // {{1}}
-          String(times.Sunrise), // {{2}}
-          String(times.Dhuhr),   // {{3}}
-          String(times.Asr),     // {{4}}
-          String(times.Maghrib), // {{5}}
-          String(times.Isha)     // {{6}}
+          String(times.Fajr),    
+          String(times.Sunrise), 
+          String(times.Dhuhr),   
+          String(times.Asr),     
+          String(times.Maghrib), 
+          String(times.Isha)     
         ]
       };
     } catch (err) {
