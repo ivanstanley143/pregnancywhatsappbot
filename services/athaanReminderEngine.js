@@ -1,4 +1,3 @@
-// Force India timezone
 process.env.TZ = "Asia/Kolkata";
 
 const cron = require("node-cron");
@@ -10,27 +9,20 @@ let cachedTimes = null;
 let cachedDate = null;
 let sent = {};
 
-// Convert HH:MM → minutes
-const toMinutes = (t) => {
+const toMinutes = t => {
   const [h, m] = t.split(":").map(Number);
   return h * 60 + m;
 };
 
-// Only real prayers
 const PRAYERS = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
 
-// Run every minute
 cron.schedule("* * * * *", async () => {
   try {
     const now = new Date();
-
-    // ⚠️ DO NOT use toISOString() (it gives UTC)
-    const today = now.toLocaleDateString("en-CA"); // YYYY-MM-DD India time
+    const today = now.toISOString().slice(0, 10);
     const nowMin = now.getHours() * 60 + now.getMinutes();
 
-    /* ===============================
-       FETCH ATHAAN TIMES ONCE PER DAY
-    =============================== */
+    // 🔄 Fetch once per day
     if (cachedDate !== today) {
       cachedTimes = await getTodayPrayerTimes();
       cachedDate = today;
@@ -40,31 +32,35 @@ cron.schedule("* * * * *", async () => {
 
     if (!cachedTimes) return;
 
-    /* ===============================
-       CHECK EACH PRAYER
-    =============================== */
+    // 🔴 TEST MODE (REMOVE AFTER TEST)
+    const TEST_PRAYER = "Asr";
+    const TEST_TIME = "03:28"; // Set 2 minutes ahead of current time
+
     for (const prayer of PRAYERS) {
-      const time = cachedTimes[prayer];
+      let time = cachedTimes[prayer];
       if (!time) continue;
 
+      // 🔴 Force test time
+      if (prayer === TEST_PRAYER) {
+        time = TEST_TIME;
+      }
+
       const key = `${today}-${prayer}`;
-      if (sent[key]) continue; // already sent today
+      if (sent[key]) continue;
 
       const prayerMin = toMinutes(time);
 
-      // 3-minute window to avoid cron lag
       if (nowMin >= prayerMin && nowMin <= prayerMin + 3) {
         await sendTemplate(
           data.USER,
           "athaan_reminder",
-          [prayer] // {{1}}
+          [prayer]
         );
 
         sent[key] = true;
         console.log(`🕌 ${prayer} reminder sent at ${time}`);
       }
     }
-
   } catch (err) {
     console.error("❌ Athaan reminder engine error:", err.message);
   }
