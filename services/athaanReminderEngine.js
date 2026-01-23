@@ -17,6 +17,11 @@ const toMinutes = t => {
 // Only real prayer names
 const PRAYERS = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
 
+// 🔴 TEST CONFIG
+const TEST_MODE = true;        // CHANGE TO false AFTER TEST
+const TEST_PRAYER = "Dhuhr";    // Which prayer name to show
+const TEST_TIME = "10:10";      // Force test time
+
 cron.schedule("* * * * *", async () => {
   try {
     const now = new Date();
@@ -34,8 +39,13 @@ cron.schedule("* * * * *", async () => {
     if (!cachedTimes) return;
 
     for (const prayer of PRAYERS) {
-      const time = cachedTimes[prayer];
+      let time = cachedTimes[prayer];
       if (!time) continue;
+
+      // 🔴 FORCE TEST TIME
+      if (TEST_MODE && prayer === TEST_PRAYER) {
+        time = TEST_TIME;
+      }
 
       const key = `${today}-${prayer}`;
       if (sent[key]) continue;
@@ -55,6 +65,6 @@ cron.schedule("* * * * *", async () => {
       }
     }
   } catch (err) {
-    console.error("❌ Athaan reminder engine error:", err.message);
+    console.error("❌ Athaan reminder engine error:", err);
   }
 });
