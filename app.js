@@ -1,5 +1,5 @@
 require("dotenv").config();
-process.env.TIMEZONE= = "Asia/Kolkata";
+process.env.TIMEZONE = "Asia/Kolkata";
 const express = require("express");
 const axios = require("axios");
 const connectDB = require("./db");
