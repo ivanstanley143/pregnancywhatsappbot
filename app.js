@@ -1,4 +1,5 @@
 require("dotenv").config();
+process.env.TZ = "Asia/Kolkata";
 const express = require("express");
 const axios = require("axios");
 const connectDB = require("./db");
