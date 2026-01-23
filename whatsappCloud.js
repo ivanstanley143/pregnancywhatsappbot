@@ -1,57 +1,46 @@
 const axios = require("axios");
 const TEMPLATE_IMAGES = require("./templateImages");
 
-/**
- * Send WhatsApp template message
- */
-async function sendTemplate(to, template, bodyParams = [], lang = "en_US") {
+async function sendTemplate(to, template, bodyParams = []) {
   try {
     const components = [];
 
-    /* =========================
-       🖼️ HEADER IMAGE (ONLY IF TEMPLATE HAS HEADER IMAGE)
-    ========================== */
+    /* HEADER IMAGE */
     if (TEMPLATE_IMAGES[template]) {
       components.push({
         type: "header",
         parameters: [
           {
             type: "image",
-            image: {
-              link: TEMPLATE_IMAGES[template]
-            }
+            image: { link: TEMPLATE_IMAGES[template] }
           }
         ]
       });
     }
 
-    /* =========================
-       🧾 BODY PARAMETERS (MUST MATCH TEMPLATE)
-    ========================== */
-    if (Array.isArray(bodyParams)) {
+    /* BODY VARIABLES */
+    if (Array.isArray(bodyParams) && bodyParams.length > 0) {
       components.push({
         type: "body",
-        parameters: bodyParams.map(value => ({
+        parameters: bodyParams.map(v => ({
           type: "text",
-          text: String(value)
+          text: String(v)
         }))
       });
     }
 
-    const payload = {
-      messaging_product: "whatsapp",
-      to,
-      type: "template",
-      template: {
-        name: template,
-        language: { code: lang },
-        components
-      }
-    };
-
-    const res = await axios.post(
+    await axios.post(
       `https://graph.facebook.com/v22.0/${process.env.PHONE_NUMBER_ID}/messages`,
-      payload,
+      {
+        messaging_product: "whatsapp",
+        to,
+        type: "template",
+        template: {
+          name: template,
+          language: { code: "en" }, // ✅ FIXED HERE
+          components
+        }
+      },
       {
         headers: {
           Authorization: `Bearer ${process.env.META_TOKEN}`,
@@ -60,8 +49,7 @@ async function sendTemplate(to, template, bodyParams = [], lang = "en_US") {
       }
     );
 
-    console.log(`✅ Sent template: ${template} [${lang}]`, res.data);
-
+    console.log(`✅ Sent template: ${template}`);
   } catch (err) {
     console.error("❌ WhatsApp send failed:", template);
     console.error(err.response?.data || err.message);
