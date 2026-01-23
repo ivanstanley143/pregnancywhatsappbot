@@ -1,5 +1,8 @@
 require("dotenv").config();
-process.env.TIMEZONE = "Asia/Kolkata";
+
+// ✅ Set timezone correctly (optional, better in .env)
+process.env.TIMEZONE = process.env.TIMEZONE || "Asia/Kolkata";
+
 const express = require("express");
 const axios = require("axios");
 const connectDB = require("./db");
@@ -7,7 +10,17 @@ const connectDB = require("./db");
 const { sendTemplate } = require("./whatsappCloud");
 const logic = require("./logic");
 
-// background engines (auto running via cron)
+const app = express();
+app.use(express.json());
+
+/* ================================
+   CONNECT DATABASE FIRST
+================================ */
+connectDB();
+
+/* ================================
+   LOAD CRON ENGINES AFTER DB
+================================ */
 require("./services/minuteScheduler");
 require("./services/duaEngine");
 require("./services/weeklyEngine");
@@ -15,11 +28,6 @@ require("./services/trimesterEngine");
 require("./services/athaanDailyEngine");
 require("./services/athaanReminderEngine");
 require("./services/appointmentEngine");
-
-const app = express();
-app.use(express.json());
-
-connectDB();
 
 /* ================================
    HEALTH CHECK
@@ -62,31 +70,17 @@ app.post("/webhook", async (req, res) => {
 
     console.log("📩 Incoming message:", text);
 
-    const result = await logic(text);
-    if (!result) {
-      return res.sendStatus(200);
-    }
+    const result = await logic(text, from);
+    if (!result) return res.sendStatus(200);
 
-    /* --------------------------------
-       TEMPLATE RESPONSES
-    --------------------------------- */
+    /* TEMPLATE RESPONSE */
     if (result.type === "template") {
-      console.log(
-        "📤 Sending template:",
-        result.template,
-        result.params
-      );
+      console.log("📤 Sending template:", result.template, result.params || []);
 
-      await sendTemplate(
-        from,
-        result.template,
-        result.params || []
-      );
+      await sendTemplate(from, result.template, result.params || []);
     }
 
-    /* --------------------------------
-       TEXT RESPONSES (PLAIN TEXT)
-    --------------------------------- */
+    /* TEXT RESPONSE */
     if (result.type === "text") {
       console.log("📤 Sending text:", result.text);
 
@@ -96,9 +90,7 @@ app.post("/webhook", async (req, res) => {
           messaging_product: "whatsapp",
           to: from,
           type: "text",
-          text: {
-            body: result.text
-          }
+          text: { body: result.text }
         },
         {
           headers: {
@@ -111,10 +103,7 @@ app.post("/webhook", async (req, res) => {
 
     res.sendStatus(200);
   } catch (err) {
-    console.error(
-      "Webhook error:",
-      err.response?.data || err.message
-    );
+    console.error("Webhook error:", err.response?.data || err.message);
     res.sendStatus(200);
   }
 });
