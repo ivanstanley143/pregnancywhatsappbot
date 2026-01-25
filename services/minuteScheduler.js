@@ -5,58 +5,74 @@ const { sendTemplate } = require("../whatsappCloud");
 let lastRun = {};
 let lastDate = new Date().toDateString();
 
+// Helper: normalize HH:MM
+const getTime = () => {
+  const now = new Date();
+  return now.toTimeString().slice(0, 5);
+};
+
+// Run every minute
 cron.schedule("* * * * *", async () => {
   try {
     const now = new Date();
+    const today = now.toDateString();
+    const currentTime = getTime();
 
-    // 🔁 RESET DAILY STATE AT MIDNIGHT
-    if (now.toDateString() !== lastDate) {
+    /* ================================
+       🔄 RESET DAILY STATE AT MIDNIGHT
+    ================================ */
+    if (today !== lastDate) {
       lastRun = {};
-      lastDate = now.toDateString();
+      lastDate = today;
       console.log("🔄 Daily reminder state reset");
     }
-
-    const currentTime = now.toTimeString().slice(0, 5); // HH:MM
 
     /* ================================
        💧 WATER REMINDERS
     ================================ */
-    try {
-      if (data.WATER_TIMES.includes(currentTime)) {
-        if (!lastRun[`water-${currentTime}`]) {
-          await sendTemplate(
-            data.USER,
-            "pregnancy_water_reminder_v1",
-            []
-          );
-          lastRun[`water-${currentTime}`] = true;
+    if (Array.isArray(data.WATER_TIMES) && data.WATER_TIMES.includes(currentTime)) {
+      const key = `water-${today}-${currentTime}`;
+
+      if (!lastRun[key]) {
+        try {
+          await sendTemplate(data.USER, "pregnancy_water_reminder_v1", []);
+          lastRun[key] = true;
           console.log("💧 Water reminder sent:", currentTime);
+        } catch (err) {
+          console.error("❌ Water reminder failed:", err.response?.data || err.message);
         }
       }
-    } catch (err) {
-      console.error("❌ Water reminder failed:", err.message);
     }
 
     /* ================================
        🍽️ MEAL REMINDERS
     ================================ */
-    try {
-      if (data.MEALS[currentTime]) {
-        if (!lastRun[`meal-${currentTime}`]) {
+    if (data.MEALS && data.MEALS[currentTime]) {
+      const key = `meal-${today}-${currentTime}`;
+
+      if (!lastRun[key]) {
+        try {
           await sendTemplate(
             data.USER,
             "pregnancy_meal_reminder",
             [String(data.MEALS[currentTime])]
           );
-          lastRun[`meal-${currentTime}`] = true;
+          lastRun[key] = true;
           console.log("🍽️ Meal reminder sent:", currentTime);
+        } catch (err) {
+          console.error("❌ Meal reminder failed:", err.response?.data || err.message);
         }
       }
-    } catch (err) {
-      console.error("❌ Meal reminder failed:", err.message);
+    }
+
+    /* ================================
+       🧠 DEBUG HEARTBEAT (OPTIONAL)
+    ================================ */
+    if (now.getMinutes() % 10 === 0) {
+      console.log("🧠 MinuteScheduler alive:", currentTime);
     }
 
   } catch (err) {
-    console.error("🔥 Minute scheduler crash prevented:", err.message);
+    console.error("🔥 MinuteScheduler crash prevented:", err.stack || err.message);
   }
 });
