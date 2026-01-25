@@ -7,6 +7,11 @@ module.exports = {
   pregnancy_week_13: "https://res.cloudinary.com/drcqtmobe/image/upload/v1768464841/file_0000000075ec72069b52c6d13eb158cd_iqtoke.jpg",
   pregnancy_week_14_v1: "https://res.cloudinary.com/drcqtmobe/image/upload/v1768464842/file_00000000ae207206a91304441fc049cc_wg0en4.jpg",
   pregnancy_week_15: "https://res.cloudinary.com/drcqtmobe/image/upload/v1768464841/file_00000000a2487206b0277bcf6ef2757e_cybdg9.jpg",
+  pregnancy_week_16: "https://res.cloudinary.com/drcqtmobe/image/upload/v1769333963/16_weeks__size_of_an_avocado_1_nqjdd0.jpg",
+  pregnancy_week_17_v1: "https://res.cloudinary.com/drcqtmobe/image/upload/v1769333962/17th_week_pregnancy_with_pear_size_2_pvnyog.jpg",
+  pregnancy_week_18: "https://res.cloudinary.com/drcqtmobe/image/upload/v1769333962/18_weeks__size_of_a_bell_pepper_1_awqngn.jpg",
+  pregnancy_week_19: "https://res.cloudinary.com/drcqtmobe/image/upload/v1769333962/19th_week_of_baby_odyujq.jpg",
+  pregnancy_week_20: "https://res.cloudinary.com/drcqtmobe/image/upload/v1769333962/20th_week_of_baby_qmevvs.jpg",
 
   pregnancy_trimester_1: "https://res.cloudinary.com/drcqtmobe/image/upload/v1768460904/file_00000000a9c47209958c868a7d4aaa1e_4_jwpzds.jpg",
   pregnancy_trimester_2: "https://res.cloudinary.com/drcqtmobe/image/upload/v1768460987/file_00000000fc48720685063f2cf441d60a_3_vf4hif.jpg",
