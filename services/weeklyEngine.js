@@ -19,7 +19,12 @@ async function processWeeklyGrowth() {
       12: "pregnancy_week_12",
       13: "pregnancy_week_13",
       14: "pregnancy_week_14_v1",
-      15: "pregnancy_week_15"
+      15: "pregnancy_week_15",
+      16: "pregnancy_week_16",
+      17: "pregnancy_week_17_v1",
+      18: "pregnancy_week_18",
+      19: "pregnancy_week_19",
+      20: "pregnancy_week_20"
     };
 
     const templateName = templateMap[week];
