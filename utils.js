@@ -4,8 +4,20 @@ const data = require("./data");
    🤰 PREGNANCY WEEK CALCULATOR
 ========================= */
 function getPregnancyWeek() {
-  const diff = (new Date() - new Date(data.LMP)) / (1000 * 60 * 60 * 24);
-  return Math.floor(diff / 7) + 1;
+  const lmp = new Date(data.LMP);
+  const now = new Date();
+
+  // Safety: invalid LMP
+  if (isNaN(lmp.getTime())) return 1;
+
+  const diffDays = (now - lmp) / (1000 * 60 * 60 * 24);
+  let week = Math.floor(diffDays / 7) + 1;
+
+  // Safety: negative or zero weeks
+  if (week < 1) week = 1;
+  if (week > 42) week = 42; // medical max pregnancy weeks
+
+  return week;
 }
 
 /* =========================
@@ -19,6 +31,7 @@ function getTrimester(week) {
 
 /* =========================
    📅 PREGNANCY MONTH CALCULATOR
+   (Medical pregnancy months)
 ========================= */
 function getPregnancyMonth(week) {
   if (week <= 4) return 1;
