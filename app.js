@@ -1,8 +1,5 @@
 require("dotenv").config();
 
-// ✅ Set timezone correctly (optional, better in .env)
-process.env.TIMEZONE = process.env.TIMEZONE || "Asia/Kolkata";
-
 const express = require("express");
 const axios = require("axios");
 const connectDB = require("./db");
@@ -14,27 +11,38 @@ const app = express();
 app.use(express.json());
 
 /* ================================
-   CONNECT DATABASE FIRST
+   CONNECT DB + LOAD CRON ENGINES
 ================================ */
-connectDB();
+(async () => {
+  try {
+    await connectDB(); // ✅ Wait for MongoDB
 
-/* ================================
-   LOAD CRON ENGINES AFTER DB
-================================ */
-require("./services/cronHealth");
-require("./services/minuteScheduler");
-require("./services/duaEngine");
-require("./services/weeklyEngine");
-require("./services/trimesterEngine");
-require("./services/athaanDailyEngine");
-require("./services/athaanReminderEngine");
-require("./services/appointmentEngine");
+    console.log("🧠 Loading cron engines...");
+
+    require("./services/cronHealth");
+    require("./services/minuteScheduler");
+    require("./services/duaEngine");
+    require("./services/weeklyEngine");
+    require("./services/trimesterEngine");
+    require("./services/athaanDailyEngine");
+    require("./services/athaanReminderEngine");
+    require("./services/appointmentEngine");
+
+    console.log("✅ All cron engines loaded");
+  } catch (err) {
+    console.error("❌ Failed to init app:", err);
+  }
+})();
 
 /* ================================
    HEALTH CHECK
 ================================ */
 app.get("/", (req, res) => {
   res.send("Pregnancy WhatsApp Bot Running");
+});
+
+app.get("/health", (req, res) => {
+  res.send("OK");
 });
 
 /* ================================
@@ -62,6 +70,7 @@ app.post("/webhook", async (req, res) => {
     const changes = entry?.changes?.[0];
     const message = changes?.value?.messages?.[0];
 
+    // Ignore non-text events
     if (!message || !message.text) {
       return res.sendStatus(200);
     }
@@ -107,6 +116,17 @@ app.post("/webhook", async (req, res) => {
     console.error("Webhook error:", err.response?.data || err.message);
     res.sendStatus(200);
   }
+});
+
+/* ================================
+   GLOBAL ERROR HANDLERS (IMPORTANT)
+================================ */
+process.on("uncaughtException", err => {
+  console.error("🔥 Uncaught Exception:", err);
+});
+
+process.on("unhandledRejection", err => {
+  console.error("🔥 Unhandled Promise Rejection:", err);
 });
 
 /* ================================
