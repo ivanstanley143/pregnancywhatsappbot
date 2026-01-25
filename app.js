@@ -21,6 +21,7 @@ connectDB();
 /* ================================
    LOAD CRON ENGINES AFTER DB
 ================================ */
+require("./services/cronHealth");
 require("./services/minuteScheduler");
 require("./services/duaEngine");
 require("./services/weeklyEngine");
