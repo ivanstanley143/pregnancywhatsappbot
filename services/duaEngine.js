@@ -24,7 +24,7 @@ async function sendDailyDua() {
 
     const duaText =
       data.WEEKLY_DUA?.[week] ||
-      "رَبِّي تَمِّمْ بِالْخَيْرِ Rabbi tammim bil khair";
+      "رَبِّي يَسِّرْ وَلَا تُعَسِّرْ وَتَمِّمْ بِالْخَيْرِ Rabbi yassir wala tu’assir wa tammim bil khair";
 
     await sendTemplate(data.USER, "pregnancy_dua", [
       String(data.NAME || "Mother"), // {{1}}
