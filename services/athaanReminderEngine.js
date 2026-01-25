@@ -9,7 +9,8 @@ let cachedTimes = null;
 let cachedDate = null;
 let sent = {};
 
-const toMinutes = t => {
+// Convert HH:MM → minutes
+const toMinutes = (t) => {
   const [h, m] = t.split(":").map(Number);
   return h * 60 + m;
 };
@@ -17,23 +18,31 @@ const toMinutes = t => {
 // Only real prayer names
 const PRAYERS = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
 
-// 🔴 TEST CONFIG
-const TEST_MODE = true;        // CHANGE TO false AFTER TEST
-const TEST_PRAYER = "Dhuhr";    // Which prayer name to show
-const TEST_TIME = "10:10";      // Force test time
+// 🔴 TEST CONFIG (SET TO false IN PRODUCTION)
+const TEST_MODE = false;        // ❗ IMPORTANT
+const TEST_PRAYER = "Dhuhr";
+const TEST_TIME = "10:10";
 
+// ================================
+// MAIN CRON (EVERY MINUTE)
+// ================================
 cron.schedule("* * * * *", async () => {
   try {
     const now = new Date();
-    const today = now.toISOString().slice(0, 10);
+    const today = now.toLocaleDateString("en-CA"); // YYYY-MM-DD in IST
     const nowMin = now.getHours() * 60 + now.getMinutes();
 
-    /* 🔄 Fetch prayer times once per day */
+    // 🔄 Fetch prayer times once per day
     if (cachedDate !== today) {
-      cachedTimes = await getTodayPrayerTimes();
-      cachedDate = today;
-      sent = {};
-      console.log("🕌 Athaan times cached for", today, cachedTimes);
+      try {
+        cachedTimes = await getTodayPrayerTimes();
+        cachedDate = today;
+        sent = {};
+        console.log("🕌 Athaan times cached for", today, cachedTimes);
+      } catch (err) {
+        console.error("❌ Failed to fetch prayer times:", err.message);
+        return;
+      }
     }
 
     if (!cachedTimes) return;
@@ -52,19 +61,30 @@ cron.schedule("* * * * *", async () => {
 
       const prayerMin = toMinutes(time);
 
-      // 3 minute safety window
+      // 3-minute window
       if (nowMin >= prayerMin && nowMin <= prayerMin + 3) {
-        await sendTemplate(
-          data.USER,
-          "athaan_reminder",
-          [prayer] // {{1}}
-        );
+        try {
+          await sendTemplate(
+            data.USER,
+            "athaan_reminder",
+            [String(prayer)]
+          );
 
-        sent[key] = true;
-        console.log(`🕌 ${prayer} reminder sent at ${time}`);
+          sent[key] = true;
+          console.log(`🕌 ${prayer} reminder sent at ${time}`);
+        } catch (err) {
+          console.error(`❌ Failed to send ${prayer} reminder:`, err.response?.data || err.message);
+        }
       }
     }
   } catch (err) {
-    console.error("❌ Athaan reminder engine error:", err);
+    console.error("❌ Athaan reminder engine crash:", err);
   }
+});
+
+// ================================
+// HEARTBEAT LOG (EVERY 6 HOURS)
+// ================================
+cron.schedule("0 */6 * * *", () => {
+  console.log("🧠 AthaanReminderEngine alive:", new Date().toISOString());
 });
