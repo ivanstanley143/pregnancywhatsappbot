@@ -9,7 +9,6 @@ module.exports = async (text, from) => {
 
   /* =========================   
      🧪 TEST ATHAAN COMMAND
-     Command: test athaan
   ========================== */
   if (msg === "test athaan") {
     return {
@@ -21,13 +20,12 @@ module.exports = async (text, from) => {
 
   /* =========================
      🕌 AZAAN / ATHAAN TIMETABLE
-     Command: athaan | azaan
   ========================== */
   if (msg === "athaan" || msg === "azaan") {
     try {
       const times = await getTodayPrayerTimes();
 
-      if (!times || !times.Fajr || !times.Dhuhr || !times.Asr || !times.Maghrib || !times.Isha) {
+      if (!times || !times.Fajr || !times.Sunrise || !times.Dhuhr || !times.Asr || !times.Maghrib || !times.Isha) {
         return { type: "text", text: "🕌 Prayer times not available. Try later." };
       }
 
@@ -51,7 +49,6 @@ module.exports = async (text, from) => {
 
   /* =========================
      ➕ ADD APPOINTMENT
-     add appointment DD-MM-YYYY HH:MM Note
   ========================== */
   if (msg.startsWith("add appointment")) {
     const parts = msg.split(" ");
@@ -60,9 +57,7 @@ module.exports = async (text, from) => {
       return {
         type: "text",
         text:
-          "❌ Invalid format.\n\n" +
-          "Use:\nadd appointment DD-MM-YYYY HH:MM Note\n\n" +
-          "Example:\nadd appointment 20-01-2026 10:30 Doctor visit"
+          "❌ Format:\nadd appointment DD-MM-YYYY HH:MM Note\n\nExample:\nadd appointment 20-01-2026 10:30 Doctor visit"
       };
     }
 
@@ -70,8 +65,8 @@ module.exports = async (text, from) => {
     const timeStr = parts[3];
     const note = parts.slice(4).join(" ");
 
-    const [day, month, year] = dateStr.split("-");
-    const [hour, minute] = timeStr.split(":");
+    const [day, month, year] = dateStr.split("-").map(Number);
+    const [hour, minute] = timeStr.split(":").map(Number);
 
     const scheduledAt = new Date(year, month - 1, day, hour, minute);
 
@@ -106,18 +101,12 @@ module.exports = async (text, from) => {
       scheduledAt: { $gte: new Date() }
     }).sort({ scheduledAt: 1 });
 
-    if (!next) {
-      return { type: "text", text: "🩺 No upcoming appointments." };
-    }
+    if (!next) return { type: "text", text: "🩺 No upcoming appointments." };
 
     return {
       type: "template",
       template: "pregnancy_appointment",
-      params: [
-        String(next.data.date),
-        String(next.data.time),
-        String(next.data.note)
-      ]
+      params: [next.data.date, next.data.time, next.data.note]
     };
   }
 
@@ -125,8 +114,7 @@ module.exports = async (text, from) => {
      🤲 DUA
   ========================== */
   if (msg.includes("dua")) {
-    const duaText = data.WEEKLY_DUA[week] || "رَبِّي تَمِّمْ بِالْخَيْرِ Rabbi tammim bil khair";
-
+    const duaText = data.WEEKLY_DUA[week] || "رَبِّي يَسِّرْ وَلَا تُعَسِّرْ وَتَمِّمْ بِالْخَيْرِ Rabbi yassir wala tu’assir wa tammim bil khair";
     return {
       type: "template",
       template: "pregnancy_dua",
@@ -135,7 +123,7 @@ module.exports = async (text, from) => {
   }
 
   /* =========================
-     🤰 WEEK COMMAND
+     🤰 WEEK UPDATE
   ========================== */
   if (msg === "week" || msg.includes("baby")) {
     const baby = data.BABY_IMAGES[week];
@@ -144,13 +132,17 @@ module.exports = async (text, from) => {
       12: "pregnancy_week_12",
       13: "pregnancy_week_13",
       14: "pregnancy_week_14_v1",
-      15: "pregnancy_week_15"
+      15: "pregnancy_week_15",
+      16: "pregnancy_week_16",
+      17: "pregnancy_week_17_v1",
+      18: "pregnancy_week_18",
+      19: "pregnancy_week_19",
+      20: "pregnancy_week_20"
     };
 
     const templateName = weekTemplateMap[week];
-
     if (!baby || !templateName) {
-      return { type: "text", text: `Week ${week} coming soon.` };
+      return { type: "text", text: `Week ${week} update coming soon.` };
     }
 
     return {
@@ -161,19 +153,20 @@ module.exports = async (text, from) => {
   }
 
   /* =========================
-     📅 MONTH COMMAND
-     Command: month
+     📅 MONTH UPDATE
   ========================== */
   if (msg === "month") {
     const month = getPregnancyMonth(week);
 
+    // Prevent template errors
+    if (month < 1 || month > 9) {
+      return { type: "text", text: "Month update not available yet." };
+    }
+
     return {
       type: "template",
       template: `pregnancy_month_${month}`,
-      params: [
-        String(data.NAME),
-        String(month)
-      ]
+      params: [String(data.NAME), String(month)]
     };
   }
 
@@ -181,8 +174,7 @@ module.exports = async (text, from) => {
      🩺 TRIMESTER
   ========================== */
   if (msg.includes("trimester")) {
-    const tri = getTrimester(week);
-    return { type: "template", template: `pregnancy_trimester_${tri}` };
+    return { type: "template", template: `pregnancy_trimester_${getTrimester(week)}` };
   }
 
   /* =========================
