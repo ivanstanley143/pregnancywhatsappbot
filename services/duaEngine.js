@@ -42,12 +42,12 @@ async function sendDailyDua() {
 // ================================
 // ⏰ CRON TIME FROM .env
 // ================================
-const time = process.env.DAILY_DUA_TIME || "09:00";
+const time = process.env.DAILY_DUA_TIME || "06:30";
 const [hour, minute] = time.split(":");
 
 // Validate time format
 if (!hour || !minute) {
-  console.error("❌ DAILY_DUA_TIME invalid. Using 09:00");
+  console.error("❌ DAILY_DUA_TIME invalid. Using 06:30");
 }
 
 // Runs every day at DAILY_DUA_TIME
