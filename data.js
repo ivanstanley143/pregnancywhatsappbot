@@ -1,6 +1,6 @@
 module.exports = {
   NAME: "Murshida Sulthana",
-  USER: "918921285711",
+  USER: "919074616114",
   LMP: "2025-10-18",
   FOOTER: "Follow Ziyadka’s Advice",
   TZ: "Asia/Kolkata",
