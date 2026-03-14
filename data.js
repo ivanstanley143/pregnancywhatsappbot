@@ -31,7 +31,17 @@ module.exports = {
     17: { size: "Pear 🍐" },
     18: { size: "Bell Pepper 🫑" },
     19: { size: "Mango 🥭" },
-    20: { size: "Banana 🍌" }
+    20: { size: "Banana 🍌" },
+    21: { size: "Carrot 🥕" },
+    22: { size: "Papaya 🥭" },
+    23: { size: "Eggplant 🍆" },
+    24: { size: "Ear of Corn 🌽" },
+    25: { size: "Acorn Squash 🍈" },
+    26: { size: "Zucchini 🥒" },
+    27: { size: "Cauliflower 🥬" },
+    28: { size: "kabocha Squash 🎃" },
+    29: { size: "Butternut Squash 🥜" },
+    30: { size: "Cabbage 🥬" }
   },
 
   // 🤲 Weekly duas
