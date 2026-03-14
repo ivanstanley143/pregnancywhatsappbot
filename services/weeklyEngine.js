@@ -24,16 +24,16 @@ async function processWeeklyGrowth() {
       17: "pregnancy_week_17_v1",
       18: "pregnancy_week_18",
       19: "pregnancy_week_19",
-      20: "pregnancy_week_20"
-      21: "pregnancy_week_21"
-      22: "pregnancy_week_22"
-      23: "pregnancy_week_23"
-      24: "pregnancy_week_24"
-      25: "pregnancy_week_25"
-      26: "pregnancy_week_26"
-      27: "pregnancy_week_27"
-      28: "pregnancy_week_28"
-      29: "pregnancy_week_29"
+      20: "pregnancy_week_20",
+      21: "pregnancy_week_21",
+      22: "pregnancy_week_22",
+      23: "pregnancy_week_23",
+      24: "pregnancy_week_24",
+      25: "pregnancy_week_25",
+      26: "pregnancy_week_26",
+      27: "pregnancy_week_27",
+      28: "pregnancy_week_28",
+      29: "pregnancy_week_29",
       30: "pregnancy_week_30"
     };
 
